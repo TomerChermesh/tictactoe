@@ -24,7 +24,7 @@ const GamePage: React.FC = () => {
   const [updatePlayerName] = useUpdatePlayerNameMutation()
   const [createNewGame, { isLoading: isResetting }] = useCreateNewGameMutation()
 
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<string[]>([])
 
   useEffect(() => {
     if (!currentGame || !currentMatchup) {
@@ -50,13 +50,19 @@ const GamePage: React.FC = () => {
     return null
   }, [currentGame, currentMatchup])
 
+  useEffect(() => {
+    if (currentMatchup.mode === 'ai' && currentGame.currentTurn === currentMatchup.player2.id) {
+      handleCellClick()
+    }
+  }, [currentGame.currentTurn])
+
 
   const handleError = (err: string) => {
     console.error(err)
-    setError(err)
+    setErrors(prev => [...prev, err])
   }
 
-  const handleCellClick = async (index: number) => {
+  const handleCellClick = async (index?: number) => {
     if (currentGame.isFinished) {
       handleError('The game is already finished')
       return
@@ -66,7 +72,8 @@ const GamePage: React.FC = () => {
       const response = await playerMove({
         gameId: currentGame.id,
         playerId: currentGame.currentTurn,
-        cellIndex: index as CellIndex
+        cellIndex: index as CellIndex,
+        isAiMove: currentMatchup.mode === 'ai' && currentGame.currentTurn === currentMatchup.player2.id
       }).unwrap()
 
       if (response.game) {
@@ -77,7 +84,7 @@ const GamePage: React.FC = () => {
         dispatch(setMatchup(response.matchup))
       }
 
-      setError(null)
+      setErrors([])
     } catch (err: any) {
       handleError(err.data.detail)
     }
@@ -104,8 +111,8 @@ const GamePage: React.FC = () => {
       if (response.matchup) {
         dispatch(setMatchup(response.matchup))
       }
-    } catch (err) {
-      const msg = `Failed to update player name: ${err}`
+    } catch (err: any) {
+      const msg = `Failed to update player name: ${err.data.detail}`
       console.error(msg)
       handleError(msg)
     }
@@ -126,9 +133,9 @@ const GamePage: React.FC = () => {
         dispatch(setMatchup(response.matchup))
       }
 
-      setError(null)
-    } catch (err) {
-      handleError(`Failed to start new game: ${err}`)
+      setErrors([])
+    } catch (err: any) {
+      handleError(`Failed to start new game: ${err.data.detail}`)
     }
   }
 
@@ -152,16 +159,18 @@ const GamePage: React.FC = () => {
         </Box>
 
         <Box sx={{ width: { xs: '100%', md: '44%' }, maxWidth: 520 }}>
-          {error && (
-            <Box sx={{ mb: 2 }}>
+          {errors.map((msg, index) => (
+            <Box key={`${msg}-${index}`} sx={{ mb: 1 }}>
               <SnackbarAlert
                 open={true}
-                onClose={() => setError(null)}
+                onClose={() =>
+                  setErrors(prev => prev.filter((_, i) => i !== index))
+                }
                 severity='error'
-                message={error}
+                message={msg}
               />
             </Box>
-          )}
+          ))}
 
           <Board
             board={currentGame.board}

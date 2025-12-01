@@ -19,12 +19,14 @@ from src.utils.game import (
     ensure_valid_player_index,
     ensure_valid_cell_index,
 )
+from src.services.ai import AIService
 
 
 class GameService:
     def __init__(self, matchups_dal: MatchupsDAL, games_dal: GamesDAL):
         self.matchups_dal = matchups_dal
         self.games_dal = games_dal
+        self.ai_service = AIService()
 
     async def _get_matchup_by_id(self, matchup_id: str) -> MatchupDocument:
         matchup: Optional[MatchupDocument] = await self.matchups_dal.get_matchup_by_id(matchup_id)
@@ -106,7 +108,7 @@ class GameService:
         self,
         game_id: str,
         player_id_raw: int,
-        cell_index_raw: int,
+        cell_index_raw: int
     ) -> UpdateResponse:
         try:
             player_id: PlayerIndex = ensure_valid_player_index(player_id_raw)
@@ -157,3 +159,17 @@ class GameService:
         )
 
         return UpdateResponse(matchup=updated_matchup, game=updated_game)
+
+    async def ai_move(
+        self,
+        game_id: str,
+        ai_player_id: int
+    ) -> UpdateResponse:
+        game: Optional[GameDocument] = await self.games_dal.get_game_by_id(game_id)
+        if not game:
+            raise GameNotFoundError(f'Game with id {game_id} not found')
+
+        opponent_player_id: PlayerIndex = 2 if ai_player_id == 1 else 1
+        ai_move: int = self.ai_service.get_next_move(game.board, ai_player_id, opponent_player_id)
+
+        return await self.player_move(game_id, ai_player_id, ai_move)

@@ -43,14 +43,15 @@ export const gameApi = createApi({
 
     playerMove: builder.mutation<
       UpdateResponse,
-      { gameId: string; playerId: PlayerID; cellIndex: CellIndex }
+      { gameId: string; playerId: PlayerID; cellIndex: CellIndex; isAiMove: boolean }
     >({
       query: body => ({
         url: `/game/${body.gameId}/move`,
         method: 'POST',
         params: {
           player_id: body.playerId,
-          cell_index: body.cellIndex
+          cell_index: body.cellIndex,
+          is_ai_move: body.isAiMove
         }
       }),
 

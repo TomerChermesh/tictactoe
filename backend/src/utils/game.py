@@ -1,5 +1,3 @@
-# src/utils/game.py
-
 from typing import List, Optional, Final
 from src.models.games import BoardCell, PlayerIndex, CellIndex
 

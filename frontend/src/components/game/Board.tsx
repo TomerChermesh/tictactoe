@@ -33,7 +33,7 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, isFinished, winningTr
               value={value}
               index={index}
               onClick={handleCellClick}
-              isWinning={!!winningTriplet?.includes(index as CellIndex)}
+              isWinning={winningTriplet?.includes(index as CellIndex)}
               disabled={isFinished}
             />
           ))}

@@ -9,7 +9,7 @@ from src.models.matchups import MatchupDocument
 
 
 async def init_db() -> None:
-    client: AsyncIOMotorClient = AsyncIOMotorClient(MONGO_URI)
+    client: AsyncIOMotorClient = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=30000)
     database: AsyncIOMotorDatabase = client[MONGO_DB_NAME]
 
     await init_beanie(
