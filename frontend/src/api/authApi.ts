@@ -1,21 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { API_BASE_URL } from '../constants/api'
-import type { AuthResponse, LoginRequest, RegisterRequest } from '../types/auth'
-import type { RootState } from '../store'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import type { AuthResponse, LoginRequest, RegisterRequest, LogoutResponse } from '../types/auth'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    credentials: 'include',
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`)
-      }
-      return headers
-    }
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: builder => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: body => ({
@@ -30,8 +19,14 @@ export const authApi = createApi({
         method: 'POST',
         body
       })
+    }),
+    logout: builder.mutation<LogoutResponse, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST'
+      })
     })
   })
 })
 
-export const { useLoginMutation, useRegisterMutation } = authApi
+export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = authApi

@@ -3,12 +3,12 @@ from typing import Optional
 
 from pymongo.errors import DuplicateKeyError
 
-from src.models.auth import LoginRequest, LoginResponse
+from src.models.auth import LoginRequest, LoginResponse, LogoutResponse
 from src.models.users import UserDocument
 from src.dal.users import UsersDAL
 from src.dependencies import get_users_dal
 from src.security.password import hash_password, verify_password
-from src.security.auth import create_access_token
+from src.security.auth import create_access_token, get_current_user
 
 
 router: APIRouter = APIRouter(prefix='/auth')
@@ -59,3 +59,12 @@ async def login(
         accessToken=access_token,
         tokenType='bearer'
     )
+
+@router.post('/logout', response_model=LogoutResponse)
+async def logout(
+    current_user: UserDocument = Depends(get_current_user)
+):
+    return LogoutResponse(
+        ok=True,
+        message='Logged out successfully'
+    )   
