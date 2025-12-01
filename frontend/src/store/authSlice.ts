@@ -1,7 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { User, AuthResponse } from '../types/auth'
 import { authApi } from '../api/authApi'
+import { clearMatchup } from './matchupSlice'
+import { clearGame } from './gameSlice'
 
 export interface AuthState {
   user: User | null
@@ -47,6 +49,15 @@ const getInitialState = (): AuthState => {
 }
 
 const initialState: AuthState = getInitialState()
+
+export const logoutAndClearAll = createAsyncThunk(
+  'auth/logoutAndClearAll',
+  async (_, { dispatch }) => {
+    dispatch(clearMatchup())
+    dispatch(clearGame())
+    dispatch(logout())
+  }
+)
 
 const applyAuth = (state: AuthState, payload: AuthResponse) => {
   state.user = payload.user
