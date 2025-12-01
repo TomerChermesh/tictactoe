@@ -115,7 +115,7 @@ const GamePage: React.FC = () => {
     try {
       const response = await createNewGame({
         matchupId: currentMatchup.id,
-        startingPlayer: 1
+        startingPlayer: currentGame.currentTurn === 1 ? 2 : 1
       }).unwrap()
 
       if (response.game) {
