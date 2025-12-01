@@ -1,24 +1,13 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { API_BASE_URL } from '../constants/api'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import type { UpdateResponse } from '../types/matchup'
 import type { PlayerID } from '../types/players'
 import type { CellIndex } from '../types/game'
-import type { RootState } from '../store'
 import { normalizeResponse } from '../utils/apiMappers'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const gameApi = createApi({
   reducerPath: 'gameApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    credentials: 'include',
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`)
-      }
-      return headers
-    }
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Game', 'Matchup'],
 
   endpoints: builder => ({

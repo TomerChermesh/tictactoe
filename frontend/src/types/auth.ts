@@ -17,3 +17,8 @@ export interface User {
     accessToken: string
     tokenType: string
   }
+
+  export interface LogoutResponse {
+    ok: boolean
+    message: string
+  }

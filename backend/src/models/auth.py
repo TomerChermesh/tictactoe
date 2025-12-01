@@ -11,3 +11,8 @@ class LoginResponse(BaseModel):
     user: UserDocument
     accessToken: str
     tokenType: str = 'bearer'
+    
+
+class LogoutResponse(BaseModel):
+    ok: bool
+    message: str

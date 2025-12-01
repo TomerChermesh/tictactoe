@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Card, CardContent, Tab, Tabs, Typography } from '@mui/material'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
+import { useAppSelector } from '../store/hooks'
 import { useLoginMutation, useRegisterMutation } from '../api/authApi'
 import LoginForm from '../components/auth/LoginForm'
 import RegisterForm from '../components/auth/RegisterForm'
@@ -8,6 +9,13 @@ import type { AuthMode } from '../types/forms'
 
 const LoginPage: React.FC = () => {
   const navigate: NavigateFunction = useNavigate()
+  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const [mode, setMode] = useState<AuthMode>('login')
 

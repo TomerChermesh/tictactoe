@@ -75,6 +75,7 @@ const authSlice = createSlice({
 
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(AUTH_STORAGE_KEY)
+        window.location.href = '/login'
       }
     },
     setAuth: (state, action: PayloadAction<AuthResponse>) => {
@@ -93,6 +94,20 @@ const authSlice = createSlice({
       authApi.endpoints.register.matchFulfilled,
       (state, { payload }) => {
         applyAuth(state, payload)
+      }
+    )
+
+    builder.addMatcher(
+      authApi.endpoints.logout.matchFulfilled,
+      state => {
+        state.user = null
+        state.isAuthenticated = false
+        state.accessToken = null
+
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(AUTH_STORAGE_KEY)
+          window.location.href = '/login'
+        }
       }
     )
   }
