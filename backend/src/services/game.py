@@ -45,9 +45,9 @@ class GameService:
 
         return game
 
-    async def create_independent_new_game(self, starting_player_raw: int) -> GameDocument:
+    async def create_independent_new_game(self, matchup_id: PydanticObjectId, starting_player_raw: int) -> GameDocument:
         game: GameDocument = await self.create_new_game(
-            matchup_id=matchup.id,
+            matchup_id=matchup_id,
             starting_player_raw=starting_player_raw
         )
 
