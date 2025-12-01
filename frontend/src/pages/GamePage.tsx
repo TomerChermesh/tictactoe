@@ -155,8 +155,9 @@ const GamePage: React.FC = () => {
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           gap: 5,
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          mb: 4
         }}
       >
         <Box sx={{ width: { xs: '100%', md: '28%' }, maxWidth: 260 }}>
