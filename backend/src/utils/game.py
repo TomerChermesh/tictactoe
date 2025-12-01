@@ -1,16 +1,7 @@
-from typing import List, Optional, Final
+from typing import List
 from src.models.games import BoardCell, PlayerIndex, CellIndex
 
-WINNING_LINES: Final[List[List[CellIndex]]] = [
-    [0, 1, 2],  # Top row
-    [3, 4, 5],  # Middle row
-    [6, 7, 8],  # Bottom row
-    [0, 3, 6],  # Left column
-    [1, 4, 7],  # Middle column
-    [2, 5, 8],  # Right column
-    [0, 4, 8],  # Diagonal TL-BR
-    [2, 4, 6],  # Diagonal TR-BL
-]
+from src.constants.game import WINNING_LINES
 
 
 def ensure_valid_player_index(value: int) -> PlayerIndex:
@@ -48,7 +39,7 @@ def check_game_winner_triplet(
     board: List[BoardCell],
     cell_index: CellIndex,
     player_id: PlayerIndex
-) -> Optional[List[CellIndex]]:
+) -> List[CellIndex] | None:
     for line in WINNING_LINES:
         if cell_index in line and all(board[i] == player_id for i in line):
             return line
