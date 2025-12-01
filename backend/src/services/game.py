@@ -42,7 +42,8 @@ class GameService:
             matchup_id=matchup_id,
             starting_player=starting_player
         )
-        return game
+        
+        return UpdateResponse(matchup=None, game=game)
 
     async def create_new_matchup(
         self,

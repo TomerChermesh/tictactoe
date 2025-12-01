@@ -2,17 +2,19 @@ import React, { useState } from 'react'
 import { Box, Button, Card, CardContent, Stack } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import NewMatchupBox from '../components/game/NewMatchupBox'
+import SnackbarAlert from '../components/general/SnackBarAlert'
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate()
   const [showNewMatchup, setShowNewMatchup] = useState<boolean>(false)
+  const [showRulesAlert, setShowRulesAlert] = useState<boolean>(false)
 
   const handleResume = () => {
     navigate('/game')
   }
 
   const handleRules = () => {
-    alert('Rules יתווסף בהמשך')
+    setShowRulesAlert(true)
   }
 
   const handleNewMatchupClick = () => {
@@ -35,15 +37,24 @@ const HomePage: React.FC = () => {
       <Card sx={{ width: '100%', borderRadius: 3 }}>
         <CardContent>
           <Stack spacing={1.5}>
-            <Button variant='outlined' fullWidth onClick={handleResume}>
+            {showRulesAlert && (
+              <SnackbarAlert
+                open={true}
+                onClose={() => setShowRulesAlert(false)}
+                severity='info'
+                message='Rules will be added later.'
+              />
+            )}
+
+            <Button variant='contained' color='success' fullWidth onClick={handleResume}>
               Resume Game
             </Button>
 
-            <Button variant='contained' fullWidth color='warning' onClick={handleNewMatchupClick}>
+            <Button variant='contained' fullWidth color='info' onClick={handleNewMatchupClick}>
               New Matchup
             </Button>
 
-            <Button variant='outlined' fullWidth onClick={handleRules}>
+            <Button variant='outlined' color='warning' fullWidth onClick={handleRules}>
               Rules
             </Button>
           </Stack>
