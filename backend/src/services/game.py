@@ -42,7 +42,15 @@ class GameService:
             matchup_id=matchup_id,
             starting_player=starting_player
         )
-        
+
+        return game
+
+    async def create_independent_new_game(self, starting_player_raw: int) -> GameDocument:
+        game: GameDocument = await self.create_new_game(
+            matchup_id=matchup.id,
+            starting_player_raw=starting_player_raw
+        )
+
         return UpdateResponse(matchup=None, game=game)
 
     async def create_new_matchup(

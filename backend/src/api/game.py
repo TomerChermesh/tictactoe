@@ -21,7 +21,7 @@ async def create_new_game(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user)
 ):
-    return await game_service.create_new_game(matchup_id, starting_player)
+    return await game_service.create_independent_new_game(matchup_id, starting_player)
 
 
 @router.post('/{game_id}/move', response_model=UpdateResponse)
