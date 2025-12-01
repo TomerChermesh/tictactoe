@@ -24,7 +24,7 @@ const GamePage: React.FC = () => {
   const [updatePlayerName] = useUpdatePlayerNameMutation()
   const [createNewGame, { isLoading: isResetting }] = useCreateNewGameMutation()
 
-  const [errors, setErrors] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!currentGame || !currentMatchup) {
@@ -52,30 +52,24 @@ const GamePage: React.FC = () => {
 
   useEffect(() => {
     if (currentMatchup.mode === 'ai' && currentGame.currentTurn === currentMatchup.player2.id) {
-      handleCellClick()
+      handleMove(true)
     }
   }, [currentGame.currentTurn])
 
 
   const handleError = (err: string) => {
     console.error(err)
-    setErrors(prev => [...prev, err])
+    setError(err)
   }
 
-  const handleCellClick = async (index?: number) => {
-    if (currentGame.isFinished) {
-      handleError('The game is already finished')
-      return
-    }
-
+  const handleMove = async (isAiMove: boolean, index?: number) => {
     try {
       const response = await playerMove({
         gameId: currentGame.id,
         playerId: currentGame.currentTurn,
         cellIndex: index as CellIndex,
-        isAiMove: currentMatchup.mode === 'ai' && currentGame.currentTurn === currentMatchup.player2.id
+        isAiMove: isAiMove
       }).unwrap()
-
       if (response.game) {
         dispatch(setGame(response.game))
       }
@@ -84,10 +78,25 @@ const GamePage: React.FC = () => {
         dispatch(setMatchup(response.matchup))
       }
 
-      setErrors([])
+      setError(null)
     } catch (err: any) {
       handleError(err.data.detail)
     }
+  }
+
+
+  const handleCellClick = async (index?: number) => {
+    if (currentGame.isFinished) {
+      handleError('The game is already finished')
+      return
+    }
+
+    if (currentMatchup.mode === 'ai' && currentGame.currentTurn === currentMatchup.player2.id) {
+      handleError('It is not your turn!')
+      return
+    }
+
+    handleMove(false, index)
   }
 
   const handlePlayer1NameChange = async (name: string) => {
@@ -133,7 +142,7 @@ const GamePage: React.FC = () => {
         dispatch(setMatchup(response.matchup))
       }
 
-      setErrors([])
+      setError(null)
     } catch (err: any) {
       handleError(`Failed to start new game: ${err.data.detail}`)
     }
@@ -159,18 +168,14 @@ const GamePage: React.FC = () => {
         </Box>
 
         <Box sx={{ width: { xs: '100%', md: '44%' }, maxWidth: 520 }}>
-          {errors.map((msg, index) => (
-            <Box key={`${msg}-${index}`} sx={{ mb: 1 }}>
+          {error && (
               <SnackbarAlert
                 open={true}
-                onClose={() =>
-                  setErrors(prev => prev.filter((_, i) => i !== index))
-                }
+                onClose={() => setError(null)}
                 severity='error'
-                message={msg}
+                message={error}
               />
-            </Box>
-          ))}
+          )}
 
           <Board
             board={currentGame.board}
@@ -179,27 +184,23 @@ const GamePage: React.FC = () => {
             winningTriplet={currentGame.winningTriplet ?? undefined}
           />
 
-          {currentGame.isFinished && (
-            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <GameOverStatus
-                backgroundColor={currentGame.winner === 1 ? 'warning.main' : 'primary.main'}
-                isFinished={currentGame.isFinished}
-                winnerName={winnerName}
-                onNewGame={handleResetBoard}
-                isResetting={isResetting}
-              />
-            </Box>
-          )}
+          <Box sx={{ mt: 2, minHeight: '60px', display: 'flex', flexDirection: 'column', gap: 2 }}> 
+              {currentGame.isFinished && (
+                  <GameOverStatus
+                      backgroundColor={currentGame.winner === 1 ? 'warning.main' : 'primary.main'}
+                      isFinished={currentGame.isFinished}
+                      winnerName={winnerName}
+                      onNewGame={handleResetBoard}
+                      isResetting={isResetting}
+                  />
+              )}
+          </Box>
         </Box>
 
         <Box sx={{ width: { xs: '100%', md: '28%' }, maxWidth: 260 }}>
           <PlayerPanel
             player={currentMatchup.player2}
-            isActive={
-              !currentGame.isFinished &&
-              currentMatchup.mode !== 'ai' &&
-              currentGame.currentTurn === currentMatchup.player2.id
-            }
+            isActive={!currentGame.isFinished && currentGame.currentTurn === currentMatchup.player2.id}
             onNameChange={handlePlayer2NameChange}
           />
         </Box>
