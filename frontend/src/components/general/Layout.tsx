@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import Header from './Header'
+import Footer from './Footer'
 
 interface Props {
   children: React.ReactNode
@@ -29,6 +30,12 @@ const Layout: React.FC<Props> = ({ children }) => {
       <Box sx={{ flex: 1, display: 'flex', px: 2, pb: 4 }}>
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', display: 'flex', justifyContent: 'center' }}>
           {children}
+        </Box>
+      </Box>
+
+      <Box sx={{ width: '100%', px: 2, pb: 2 }}>
+        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto' }}>
+          <Footer />
         </Box>
       </Box>
     </Box>
