@@ -1,6 +1,4 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import Optional
-
 from pymongo.errors import DuplicateKeyError
 
 from src.models.auth import LoginRequest, LoginResponse, LogoutResponse
@@ -49,7 +47,7 @@ async def login(
     users_dal: UsersDAL = Depends(get_users_dal)
 ):
     logger.info(f'Login attempt: email={payload.email}')
-    user: Optional[UserDocument] = await users_dal.get_user_by_email(payload.email)
+    user: UserDocument | None = await users_dal.get_user_by_email(payload.email)
 
     if not user or not verify_password(payload.password, user.password):
         logger.warning(f'Login failed: invalid credentials for email={payload.email}')

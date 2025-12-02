@@ -12,11 +12,11 @@ from src.utils.logger import logger
 
 
 class AIService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.client: genai.Client | None = None
         self._initialized: bool = False
 
-    def init_client(self):
+    def init_client(self) -> None:
         if self._initialized and self.client is not None:
             return
         
@@ -73,10 +73,10 @@ class AIService:
             raise AIServiceError(error_message)
 
         try:
-            response: genai.types.Response = self.client.models.generate_content(
+            response: str = self.client.models.generate_content(
                 model=GEMINI_MODEL,
                 contents=prompt
-            )
+            ).text
         except APIError as e:
             error_message = 'Failed to get response from AI model due to API error'
             logger.error(error_message, exception=e)
@@ -87,12 +87,12 @@ class AIService:
             raise AIServiceError(error_message)
 
        
-        ai_cell_index: int = self.validate_response(response)
+        ai_cell_index: int = self.validate_response(response, board)
         logger.info(f'AI selected cell index: {ai_cell_index}')
         return ai_cell_index
 
-    def validate_response(self, response: str) -> int:
-        raw_text: str = (response.text or '').strip()
+    def validate_response(self, response: str, board: List[int]) -> int:
+        raw_text: str = response.strip()
         logger.debug(f'Response from Gemini: {raw_text}')
 
         if not raw_text:
@@ -111,3 +111,6 @@ class AIService:
             error_message = f'AI returned an invalid or occupied cell index: {ai_cell_index}'
             logger.error(error_message)
             raise AIServiceError(error_message)
+        
+        return ai_cell_index
+        

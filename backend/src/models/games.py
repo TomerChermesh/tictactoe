@@ -1,4 +1,4 @@
-from typing import List, Optional, Literal
+from typing import List, Literal
 
 from beanie import Document, PydanticObjectId
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ class GameCreate(GameBase):
 
 
 class GameUpdate(GameBase):
-    matchup_id: Optional[PydanticObjectId] = None
+    matchup_id: PydanticObjectId | None = None
 
 
 class GameDocument(GameBase, Document):

@@ -1,6 +1,6 @@
 # src/dal/matchups.py
 
-from typing import List, Optional, Type
+from typing import List, Type
 
 from beanie import PydanticObjectId
 
@@ -10,8 +10,8 @@ from src.models.games import PlayerIndex
 
 
 class MatchupsDAL(BaseDAL):
-    def __init__(self, model: Type[MatchupDocument] = MatchupDocument):
-        self.model = model
+    def __init__(self, model: Type[MatchupDocument] = MatchupDocument) -> None:
+        self.model: Type[MatchupDocument] = model
 
     async def create_matchup(
         self,
@@ -30,7 +30,7 @@ class MatchupsDAL(BaseDAL):
         )
         return await self.create(data)
 
-    async def get_matchup_by_id(self, matchup_id: str) -> Optional[MatchupDocument]:
+    async def get_matchup_by_id(self, matchup_id: str) -> MatchupDocument | None:
         return await self.model.get(matchup_id)
 
     async def list_matchups_for_user(
@@ -44,10 +44,10 @@ class MatchupsDAL(BaseDAL):
         matchup_id: str,
         player_id: PlayerIndex,
         name: str
-    ) -> MatchupDocument:
-        matchup: Optional[MatchupDocument] = await self.model.get(matchup_id)
+    ) -> MatchupDocument | None:
+        matchup: MatchupDocument | None = await self.model.get(matchup_id)
         if not matchup:
-            return None  
+            raise MatchupNotFoundError(f'Matchup with id {matchup_id} not found')
 
         data: MatchupUpdateName = MatchupUpdateName(
             player1_name=name if player_id == 1 else None,
@@ -60,8 +60,8 @@ class MatchupsDAL(BaseDAL):
         self,
         matchup_id: str,
         player_id: PlayerIndex
-    ) -> Optional[MatchupDocument]:
-        matchup: Optional[MatchupDocument] = await self.model.get(matchup_id)
+    ) -> MatchupDocument | None:
+        matchup: MatchupDocument | None = await self.model.get(matchup_id)
         if not matchup:
             return None
 
