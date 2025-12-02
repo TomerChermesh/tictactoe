@@ -81,10 +81,10 @@ class GameService:
     async def get_matchups_list_for_user(self, user_id: PydanticObjectId) -> List[MatchupDocument]:
         return await self.matchups_dal.list_matchups_for_user(user_id)
 
-    async def get_matchup_active_game(self, matchup_id: str) -> UpdateResponse:
-        matchup: MatchupDocument = await self._get_matchup_by_id(matchup_id)
-        game: Optional[GameDocument] = await self.games_dal.get_active_game_for_matchup(matchup_id)
-        return UpdateResponse(matchup=matchup, game=game)
+    async def get_last_game_for_matchup(self, matchup_id: PydanticObjectId) -> UpdateResponse:
+        games: List[GameDocument] = await self.games_dal.list_games_for_matchup(matchup_id)
+        game: Optional[GameDocument] = games[0] if games else None
+        return game
 
     async def update_player_name(
         self,

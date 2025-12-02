@@ -36,8 +36,7 @@ const Header = () => {
                     backgroundColor: 'white',
                     borderRadius: '50%',
                     fontFamily: 'Jumps Winter',
-                    letterSpacing: '0.17em',
-                    textTransform: 'uppercase', 
+                    letterSpacing: '0.15em',
                     textAlign: 'center',
                     flex: 1,
                     cursor: 'pointer'
