@@ -5,7 +5,7 @@ from google import genai
 from google.genai.errors import APIError
 
 from src.config import GEMINI_API_KEY
-from src.constants.ai import GEMINI_MODEL
+from src.constants.ai import GEMINI_MODEL, AI_RESPONSE_REGEX
 from src.constants.game import WINNING_LINES
 from src.exceptions import AIServiceError
 from src.utils.logger import logger
@@ -30,6 +30,7 @@ class AIService:
             self._initialized = False
 
     def get_next_move(self, board: List[int], ai_player_id: int, opponent_player_id: int) -> int:
+        error_message: str
         prompt: str = f"""
             You are a Tic-Tac-Toe engine.
             
@@ -67,8 +68,9 @@ class AIService:
             self.init_client()
 
         if not self.client:
-            logger.error('AI service is unavailable due to missing API Key or failed initialization')
-            raise AIServiceError('AI service is unavailable due to missing API Key or failed initialization.')
+            error_message = 'AI service is unavailable due to missing API Key or failed initialization'
+            logger.error(error_message)
+            raise AIServiceError(error_message)
 
         try:
             response: genai.types.Response = self.client.models.generate_content(
@@ -76,33 +78,36 @@ class AIService:
                 contents=prompt
             )
         except APIError as e:
-            logger.error('Failed to get response from AI model due to API error', exception=e)
-            raise AIServiceError('Failed to get response from AI model due to API error.') from e
+            error_message = 'Failed to get response from AI model due to API error'
+            logger.error(error_message, exception=e)
+            raise AIServiceError(error_message)
         except Exception as e:
-            logger.error('An unexpected error occurred during AI request', exception=e)
-            raise AIServiceError('An unexpected error occurred during AI request.') from e
+            error_message = 'An unexpected error occurred during AI request'
+            logger.error(error_message, exception=e)
+            raise AIServiceError(error_message)
 
+       
+        ai_cell_index: int = self.validate_response(response)
+        logger.info(f'AI selected cell index: {ai_cell_index}')
+        return ai_cell_index
+
+    def validate_response(self, response: str) -> int:
         raw_text: str = (response.text or '').strip()
         logger.debug(f'Response from Gemini: {raw_text}')
 
         if not raw_text:
-            logger.error('AI returned an empty response')
-            raise AIServiceError('AI returned an empty response.')
+            error_message = 'AI returned an empty response'
+            logger.error(error_message)
+            raise AIServiceError(error_message)
 
-        # Validate that response is exactly a single digit between 0-8
-        if not re.match(r'^[0-8]$', raw_text):
-            logger.error(f'AI returned a bad structured response: {raw_text!r}. Expected a single digit between 0-8.')
-            raise AIServiceError(f'AI returned a bad structured response: {raw_text!r}. Expected a single digit between 0-8.')
+        if not re.match(AI_RESPONSE_REGEX, raw_text):
+            error_message = f'AI returned a bad structured response: {raw_text!r}. Expected a single digit between 0-8.'
+            logger.error(error_message)
+            raise AIServiceError(error_message)
 
         ai_cell_index: int = int(raw_text)
 
-        if ai_cell_index < 0 or ai_cell_index > 8:
-            logger.error(f'AI returned an out-of-range cell index: {ai_cell_index}')
-            raise AIServiceError(f'AI returned an out-of-range cell index: {ai_cell_index}')
-
         if ai_cell_index >= len(board) or board[ai_cell_index] != 0:
-            logger.error(f'AI selected an invalid or occupied cell index: {ai_cell_index}')
-            raise AIServiceError(f'AI selected an invalid or occupied cell index: {ai_cell_index}')
-
-        logger.info(f'AI selected cell index: {ai_cell_index}')
-        return ai_cell_index
+            error_message = f'AI returned an invalid or occupied cell index: {ai_cell_index}'
+            logger.error(error_message)
+            raise AIServiceError(error_message)
