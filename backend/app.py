@@ -7,8 +7,8 @@ import uvicorn
 from src.db import init_db
 from src.api.health import router as health_router
 from src.api.auth import router as auth_router
-from src.api.game import router as game_router
-from src.api.matchup import router as matchup_router
+from src.api.games import router as games_router
+from src.api.matchups import router as matchups_router
 from src.constants.fastapi import FASTAPI_TITLE, FASTAPI_VERSION, VALID_ORIGINS
 from src.utils.logger import logger
 
@@ -37,8 +37,8 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router, prefix='/api')
     app.include_router(auth_router, prefix='/api')
-    app.include_router(game_router, prefix='/api')
-    app.include_router(matchup_router, prefix='/api')
+    app.include_router(games_router, prefix='/api')
+    app.include_router(matchups_router, prefix='/api')
 
     return app
 

@@ -17,7 +17,7 @@ export const gameApi = createApi({
       { matchupId: string; startingPlayer: PlayerID }
     >({
       query: body => ({
-        url: '/game/new',
+        url: '/games/new',
         method: 'POST',
         params: {
           matchup_id: body.matchupId,
@@ -35,7 +35,7 @@ export const gameApi = createApi({
       { gameId: string; playerId: PlayerID; cellIndex: CellIndex; isAiMove: boolean }
     >({
       query: body => ({
-        url: `/game/${body.gameId}/move`,
+        url: `/games/${body.gameId}/move`,
         method: 'POST',
         params: {
           player_id: body.playerId,
@@ -51,7 +51,7 @@ export const gameApi = createApi({
 
     getLastGameForMatchup: builder.query<Game, string>({
       query: matchupId => ({
-        url: '/game/last_for_matchup',
+        url: '/games/last_game',
         method: 'GET',
         params: { matchup_id: matchupId }
       }),

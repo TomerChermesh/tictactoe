@@ -15,7 +15,7 @@ export const matchupApi = createApi({
       { player1Name: string; player2Name: string; mode: MatchupMode; startingPlayer: PlayerID }
     >({
       query: body => ({
-        url: '/matchup/new',
+        url: '/matchups/new',
         method: 'POST',
         params: {
           player1_name: body.player1Name,
@@ -28,7 +28,7 @@ export const matchupApi = createApi({
       invalidatesTags: ['Matchup', 'Game']
     }),
     getMatchup: builder.query<UpdateResponse, string>({
-      query: matchupId => `/matchup/${matchupId}`,
+      query: matchupId => `/matchups/${matchupId}`,
       transformResponse: (response: any): UpdateResponse => (normalizeResponse(response)),
       providesTags: (_result, _error, matchupId) => [{ type: 'Matchup', id: matchupId }]
     }),
@@ -37,7 +37,7 @@ export const matchupApi = createApi({
       { matchupId: string; playerId: PlayerID; name: string }
     >({
       query: body => ({
-        url: `/matchup/${body.matchupId}/update_player_name`,
+        url: `/matchups/${body.matchupId}/update_player_name`,
         method: 'PUT',
         params: {
           player_id: body.playerId,
@@ -48,7 +48,7 @@ export const matchupApi = createApi({
       invalidatesTags: (_result, _error, arg) => [{ type: 'Matchup', id: arg.matchupId }]
     }),
     getMatchupsList: builder.query<Matchup[], void>({
-      query: () => '/matchup/list',
+      query: () => '/matchups/list',
       transformResponse: (response: any): Matchup[] => (response.map((m: any) => normalizeMatchup(m))),
       providesTags: ['Matchup']
     })
