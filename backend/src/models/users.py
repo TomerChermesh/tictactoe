@@ -15,8 +15,8 @@ class UserDocument(Document):
     email: Indexed(EmailStr, unique=True)
     password: str
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime
+    updated_at: datetime
 
     class Settings:
         name = 'users'

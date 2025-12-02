@@ -14,10 +14,10 @@ CellIndex = Literal[0, 1, 2, 3, 4, 5, 6, 7, 8]
 class GameBase(BaseModel):
     matchup_id: PydanticObjectId
     board: List[BoardCell]
-    winner: Optional[PlayerIndex]
-    is_finished: bool
     current_turn: PlayerIndex
-    winning_triplet: Optional[List[CellIndex]]
+    is_finished: bool
+    winner: PlayerIndex | None
+    winning_triplet: List[CellIndex] | None
 
 
 class GameCreate(GameBase):
