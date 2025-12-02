@@ -194,9 +194,9 @@ The frontend receives the updated `Game` and `Matchup` and updates Redux accordi
 
 Unexpected AI responses are handled defensively in `AIService`:
 
-- Empty response → `AIServiceError('AI returned an empty response.')`.
-- Bad Response → `AIServiceError('AI returned a bad structured response: ...')`.
-- Out‑of‑range index → `AIServiceError('AI returned an out-of-range cell index: ...')`.
-- Index points to a non‑empty cell → `AIServiceError('AI selected an invalid or occupied cell index: ...')`.
+- Empty response
+- Bad Response
+- Out‑of‑range index
+- Index points to a non‑empty cell
 
 In any of those cases, the `GameService` is responsible to return a random empty cell.
