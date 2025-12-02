@@ -1,6 +1,6 @@
 # src/dal/matchups.py
 
-from typing import List, Optional, Type
+from typing import List, Type
 
 from beanie import PydanticObjectId
 
@@ -30,7 +30,7 @@ class MatchupsDAL(BaseDAL):
         )
         return await self.create(data)
 
-    async def get_matchup_by_id(self, matchup_id: str) -> Optional[MatchupDocument]:
+    async def get_matchup_by_id(self, matchup_id: str) -> MatchupDocument | None:
         return await self.model.get(matchup_id)
 
     async def list_matchups_for_user(
@@ -45,7 +45,7 @@ class MatchupsDAL(BaseDAL):
         player_id: PlayerIndex,
         name: str
     ) -> MatchupDocument:
-        matchup: Optional[MatchupDocument] = await self.model.get(matchup_id)
+        matchup: MatchupDocument | None = await self.model.get(matchup_id)
         if not matchup:
             return None  
 
@@ -60,8 +60,8 @@ class MatchupsDAL(BaseDAL):
         self,
         matchup_id: str,
         player_id: PlayerIndex
-    ) -> Optional[MatchupDocument]:
-        matchup: Optional[MatchupDocument] = await self.model.get(matchup_id)
+    ) -> MatchupDocument | None:
+        matchup: MatchupDocument | None = await self.model.get(matchup_id)
         if not matchup:
             return None
 

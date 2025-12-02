@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -14,7 +13,7 @@ from src.utils.logger import logger
 oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl='/api/auth/login')
 
 
-def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
     if expires_delta is None:
         expires_delta = timedelta(minutes=JWT_EXPIRES_MINUTES)
 
@@ -33,7 +32,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserDocument:
 
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        user_id: Optional[str] = payload.get('sub')
+        user_id: str | None = payload.get('sub')
         if user_id is None:
             logger.warning('JWT token missing subject (sub) claim')
             raise credentials_exception

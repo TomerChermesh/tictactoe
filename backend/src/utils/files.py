@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 
 def create_file(file_path: str) -> None:
@@ -9,7 +8,7 @@ def create_file(file_path: str) -> None:
         path.touch()
 
 
-def read_file(file_path: str) -> Optional[str]:
+def read_file(file_path: str) -> str | None:
     path: Path = Path(file_path)
     if not path.exists():
         return None

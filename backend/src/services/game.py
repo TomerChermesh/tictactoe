@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List
 from beanie import PydanticObjectId
 from src.dal.matchups import MatchupsDAL
 from src.dal.games import GamesDAL
@@ -30,13 +30,6 @@ class GameService:
         self.matchups_dal = matchups_dal
         self.games_dal = games_dal
         self.ai_service = ai_service
-
-    async def _get_matchup_by_id(self, matchup_id: str) -> MatchupDocument:
-        matchup: Optional[MatchupDocument] = await self.matchups_dal.get_matchup_by_id(matchup_id)
-        if not matchup:
-            logger.warning(f'Matchup not found: matchup_id={matchup_id}')
-            raise MatchupNotFoundError(f'Matchup with id {matchup_id} not found')
-        return matchup
 
     async def create_new_game(self, matchup_id: PydanticObjectId, starting_player_raw: int) -> GameDocument:
         try:
@@ -86,10 +79,8 @@ class GameService:
     async def get_matchups_list_for_user(self, user_id: PydanticObjectId) -> List[MatchupDocument]:
         return await self.matchups_dal.list_matchups_for_user(user_id)
 
-    async def get_last_game_for_matchup(self, matchup_id: PydanticObjectId) -> UpdateResponse:
-        games: List[GameDocument] = await self.games_dal.list_games_for_matchup(matchup_id)
-        game: Optional[GameDocument] = games[0] if games else None
-        return game
+    async def get_last_game_for_matchup(self, matchup_id: PydanticObjectId) -> GameDocument | None:
+        return await self.games_dal.get_last_game_for_matchup(matchup_id)
 
     async def update_player_name(
         self,
@@ -102,12 +93,17 @@ class GameService:
         except ValueError as e:
             raise InvalidMoveError(str(e))
 
-        matchup: MatchupDocument = await self._get_matchup_by_id(matchup_id)
-        updated_matchup: MatchupDocument = await self.matchups_dal.update_player_name(
+        updated_matchup: MatchupDocument | None = await self.matchups_dal.update_player_name(
             matchup_id,
             player_id,
             player_name,
         )
+
+        if not updated_matchup:
+            warning_message: str = f'Matchup not found: matchup_id={matchup_id}'
+            logger.warning(warning_message)
+            raise MatchupNotFoundError(warning_message)
+
         return UpdateResponse(matchup=updated_matchup, game=None)
 
     async def player_move(
@@ -122,28 +118,18 @@ class GameService:
         except ValueError as e:
             raise InvalidMoveError(str(e))
 
-        game: Optional[GameDocument] = await self.games_dal.get_game_by_id(game_id)
-        if not game:
-            logger.warning(f'Game not found: game_id={game_id}')
-            raise GameNotFoundError(f'Game with id {game_id} not found')
-
-        if game.is_finished:
-            logger.warning(f'Attempted move on finished game: game_id={game_id}')
-            raise GameFinishedError('Game is already finished')
-
-        if not validate_player_move(game.board, game.current_turn, player_id, cell_index):
-            logger.warning(f'Invalid move: game_id={game_id}, player_id={player_id}, cell_index={cell_index}')
-            raise InvalidMoveError('Invalid move: either not your turn or cell is already occupied')
+        game: GameDocument | None = await self.games_dal.get_game_by_id(game_id)
+        
 
         new_board: List[BoardCell] = game.board.copy()
         new_board[cell_index] = player_id
 
-        winner_triplet: Optional[List[CellIndex]] = check_game_winner_triplet(
+        winner_triplet: List[CellIndex] | None = check_game_winner_triplet(
             new_board,
             cell_index,
             player_id,
         )
-        updated_matchup: Optional[MatchupDocument] = None
+        updated_matchup: MatchupDocument | None = None
 
         if winner_triplet:
             logger.info(f'Game finished with winner: game_id={game_id}, winner={player_id}')
@@ -170,6 +156,24 @@ class GameService:
         )
 
         return UpdateResponse(matchup=updated_matchup, game=updated_game)
+    
+
+    async def validate_move(self, game: GameDocument, player_id: PlayerIndex, cell_index: CellIndex) -> None:
+        warning_message: str
+        if not game:
+            warning_message = f'Game not found: game_id={game_id}'
+            logger.warning(warning_message)
+            raise GameNotFoundError(warning_message)
+
+        if game.is_finished:
+            warning_message = f'Attempted move on finished game: game_id={game_id}'
+            logger.warning(warning_message)
+            raise GameFinishedError(warning_message)
+
+        if not validate_player_move(game.board, game.current_turn, player_id, cell_index):
+            warning_message = f'Invalid move: game_id={game_id}, player_id={player_id}, cell_index={cell_index}'
+            logger.warning(warning_message)
+            raise InvalidMoveError(warning_message)
 
     async def ai_move(
         self,
@@ -177,10 +181,11 @@ class GameService:
         ai_player_id: int
     ) -> UpdateResponse:
         logger.info(f'AI move requested: game_id={game_id}, ai_player_id={ai_player_id}')
-        game: Optional[GameDocument] = await self.games_dal.get_game_by_id(game_id)
+        game: GameDocument | None = await self.games_dal.get_game_by_id(game_id)
         if not game:
-            logger.warning(f'Game not found for AI move: game_id={game_id}')
-            raise GameNotFoundError(f'Game with id {game_id} not found')
+            warning_message: str = f'Game not found for AI move: game_id={game_id}'
+            logger.warning(warning_message)
+            raise GameNotFoundError(warning_message)
 
         ai_move: int
         opponent_player_id: PlayerIndex = 2 if ai_player_id == 1 else 1
@@ -191,3 +196,4 @@ class GameService:
             ai_move = get_random_empty_cell(game.board)
 
         return await self.player_move(game_id, ai_player_id, ai_move)
+
