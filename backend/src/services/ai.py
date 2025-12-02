@@ -89,12 +89,12 @@ class AIService:
             logger.error('AI returned an empty response')
             raise AIServiceError('AI returned an empty response.')
 
-        match = re.search(r'\d+', raw_text)
-        if not match:
-            logger.error(f'AI returned a non-numeric response: {raw_text!r}')
-            raise AIServiceError(f'AI returned a non-numeric response: {raw_text!r}')
+        # Validate that response is exactly a single digit between 0-8
+        if not re.match(r'^[0-8]$', raw_text):
+            logger.error(f'AI returned a bad structured response: {raw_text!r}. Expected a single digit between 0-8.')
+            raise AIServiceError(f'AI returned a bad structured response: {raw_text!r}. Expected a single digit between 0-8.')
 
-        ai_cell_index: int = int(match.group())
+        ai_cell_index: int = int(raw_text)
 
         if ai_cell_index < 0 or ai_cell_index > 8:
             logger.error(f'AI returned an out-of-range cell index: {ai_cell_index}')

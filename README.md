@@ -199,4 +199,4 @@ Unexpected AI responses are handled defensively in `AIService`:
 - Out‑of‑range index → `AIServiceError('AI returned an out-of-range cell index: ...')`.
 - Index points to a non‑empty cell → `AIServiceError('AI selected an invalid or occupied cell index: ...')`.
 
-In any of those cases, the `GameService` is responsible to return the first empty cell.
+In any of those cases, the `GameService` is responsible to return a random empty cell.
