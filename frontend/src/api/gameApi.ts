@@ -1,8 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { UpdateResponse } from '../types/matchup'
 import type { PlayerID } from '../types/players'
-import type { CellIndex } from '../types/game'
-import { normalizeResponse } from '../utils/apiMappers'
+import type { CellIndex, Game } from '../types/game'
+import { normalizeResponse, normalizeGame } from '../utils/apiMappers'
 import { baseQueryWithReauth } from './baseQuery'
 
 export const gameApi = createApi({
@@ -25,7 +25,7 @@ export const gameApi = createApi({
         }
       }),
 
-      transformResponse: (response: any): UpdateResponse => (normalizeResponse(response)),
+      transformResponse: (response: any): UpdateResponse => normalizeResponse(response),
 
       invalidatesTags: ['Game']
     }),
@@ -44,12 +44,25 @@ export const gameApi = createApi({
         }
       }),
 
-      transformResponse: (response: any): UpdateResponse => (normalizeResponse(response)),
+      transformResponse: (response: any): UpdateResponse => normalizeResponse(response),
 
       invalidatesTags: ['Game', 'Matchup']
+    }),
+
+    getLastGameForMatchup: builder.query<Game, string>({
+      query: matchupId => ({
+        url: '/game/last_for_matchup',
+        method: 'GET',
+        params: { matchup_id: matchupId }
+      }),
+      transformResponse: (response: any): Game => normalizeGame(response)
     })
 
   })
 })
 
-export const { useCreateNewGameMutation, usePlayerMoveMutation } = gameApi
+export const {
+  useCreateNewGameMutation,
+  usePlayerMoveMutation,
+  useLazyGetLastGameForMatchupQuery
+} = gameApi

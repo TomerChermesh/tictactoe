@@ -20,7 +20,7 @@ const baseQuery = fetchBaseQuery({
 
 export const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 10_000)
+  const timeoutId = setTimeout(() => controller.abort(), 15_000)
 
   let result
   try {

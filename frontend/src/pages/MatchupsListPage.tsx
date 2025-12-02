@@ -1,14 +1,44 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useGetMatchupsListQuery } from '../api/matchupApi'
-import { Box, Typography, type SvgIconProps } from '@mui/material'
+import { useLazyGetLastGameForMatchupQuery } from '../api/gameApi'
+import { Box, Typography, IconButton, type SvgIconProps } from '@mui/material'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import type { Matchup } from '../types/matchup'
 import { DATE_TIME_FORMAT, DATE_TIME_FORMAT_OPTIONS } from '../constants/dateTime'
 import PeopleIcon from '@mui/icons-material/People'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
+import ReplayIcon from '@mui/icons-material/Replay'
+import { useAppDispatch } from '../store/hooks'
+import { setGame } from '../store/gameSlice'
+import { useNavigate } from 'react-router-dom'
+import type { Game } from '../types/game'
+import SnackbarAlert from '../components/general/SnackBarAlert'
+import { setMatchup } from '../store/matchupSlice'
 
 const MatchupsListPage: React.FC = () => {
   const { data: matchupsList, isLoading, error } = useGetMatchupsListQuery()
+  const [loadLastGame] = useLazyGetLastGameForMatchupQuery()
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+
+  const [reloadError, setReloadError] = useState<string | null>(null)
+
+
+  const handleReloadMatchup = async (matchup: Matchup) => {
+    try {
+      dispatch(setMatchup(matchup))
+      const game: Game = await loadLastGame(matchup.id).unwrap()
+      console.log('game', game)
+      if (game) {
+        dispatch(setGame(game))
+        navigate('/game')
+      } else {
+        setReloadError('No game found for this matchup')
+      }
+    } catch (err: any) {
+      setReloadError(`Failed to reload matchup: ${err.data.detail}`)
+    }
+  }
 
   const columns: GridColDef<Matchup>[] = [
     {
@@ -30,7 +60,7 @@ const MatchupsListPage: React.FC = () => {
     },
     {
       field: 'updatedAt',
-      headerName: 'Updated At',
+      headerName: 'Last Updated',
       width: 180,
       valueGetter: (_value, row) => {
         return new Intl.DateTimeFormat(DATE_TIME_FORMAT, DATE_TIME_FORMAT_OPTIONS).format(new Date(row.updatedAt))
@@ -84,13 +114,27 @@ const MatchupsListPage: React.FC = () => {
     },
     {
       field: 'createdAt',
-      headerName: 'Created At',
+      headerName: 'Time Created',
       width: 180,
       align: 'center',
       headerAlign: 'center',
       valueGetter: (_value, row) => {
         return new Intl.DateTimeFormat(DATE_TIME_FORMAT, DATE_TIME_FORMAT_OPTIONS).format(new Date(row.createdAt))
       }
+    },
+    {
+      field: 'reload',
+      headerName: 'Reload Matchup',
+      width: 180,
+      align: 'center',
+      headerAlign: 'center',
+      sortable: false,
+      filterable: false,
+      renderCell: params => (
+        <IconButton onClick={() => handleReloadMatchup(params.row)} aria-label='reload matchup'>
+          <ReplayIcon />
+        </IconButton>
+      )
     }
   ]
 
@@ -107,6 +151,15 @@ const MatchupsListPage: React.FC = () => {
 
   return (
     <Box sx={{ height: 600, width: '100%'}}>
+        {reloadError && (
+            <SnackbarAlert
+                open={true}
+                onClose={() => setReloadError(null)}
+                severity='error'
+                message={reloadError}
+            />
+        )}
+
       <Typography variant='h4' sx={{ mb: 2, textAlign: 'center' }}>Matchups List</Typography>
       <DataGrid
         rows={matchupsList || []}

@@ -6,7 +6,7 @@ export const normalizeResponse = (response: any): UpdateResponse => ({
     matchup: response.matchup ? normalizeMatchup(response.matchup) : null
   })
   
-const normalizeGame = (g: any): Game => ({
+export const normalizeGame = (g: any): Game => ({
     id: g.id ?? g._id,
     matchupId: g.matchup_id,
     board: g.board,

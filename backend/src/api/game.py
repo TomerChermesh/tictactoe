@@ -4,12 +4,14 @@ from src.models.users import UserDocument
 from src.dependencies import get_game_service
 from src.services.game import GameService
 from src.models.responses import UpdateResponse
+from src.models.games import GameDocument
 from src.exceptions import (
     GameNotFoundError,
     MatchupNotFoundError,
     InvalidMoveError,
     GameFinishedError
 )
+from beanie import PydanticObjectId
 
 router: APIRouter = APIRouter(prefix='/game')
 
@@ -41,6 +43,22 @@ async def player_move(
             return await game_service.player_move(game_id, player_id, cell_index)
         else:
             raise InvalidMoveError('Cell index is required')
+    except (GameNotFoundError, MatchupNotFoundError) as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except (InvalidMoveError, GameFinishedError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get('/last_for_matchup', response_model=GameDocument)
+async def get_last_game_for_matchup(
+    matchup_id: PydanticObjectId,
+    game_service: GameService = Depends(get_game_service),
+    current_user: UserDocument = Depends(get_current_user)
+):
+    try:
+        return await game_service.get_last_game_for_matchup(matchup_id)
     except (GameNotFoundError, MatchupNotFoundError) as e:
         raise HTTPException(status_code=404, detail=str(e))
     except (InvalidMoveError, GameFinishedError) as e:

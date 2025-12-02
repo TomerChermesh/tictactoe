@@ -37,7 +37,7 @@ class MatchupsDAL(BaseDAL):
         self,
         user_id: PydanticObjectId
     ) -> List[MatchupDocument]:
-        return await self.model.find(self.model.user_id == user_id).to_list()
+        return await self.model.find(self.model.user_id == user_id).sort('-updated_at').to_list()
 
     async def update_player_name(
         self,
