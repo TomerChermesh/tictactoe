@@ -61,8 +61,8 @@ const NewMatchupBox: React.FC<Props> = ({ onConfirm }) => {
   }
 
   return (
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 4 }}>
-      <Card sx={{ width: '100%', maxWidth: 400, borderRadius: 3 }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <Card sx={{ width: 'auto', maxWidth: 400, borderRadius: 3 }}>
         <CardContent>
           <Stack spacing={3}>
             <Typography variant='h5' align='center'>New Matchup</Typography>

@@ -1,20 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Button, Card, CardContent, Stack } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import NewMatchupBox from '../components/game/NewMatchupBox'
 import SnackbarAlert from '../components/general/SnackBarAlert'
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [showNewMatchup, setShowNewMatchup] = useState<boolean>(false)
   const [showRulesAlert, setShowRulesAlert] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (location.pathname === '/' && showNewMatchup) {
+      setShowNewMatchup(false)
+    }
+  }, [location.key, location.pathname])
 
   const handleResume = () => {
     navigate('/game')
   }
 
   const handleRules = () => {
-    setShowRulesAlert(true)
+    navigate('/rules')
   }
 
   const handleNewMatchupClick = () => {
