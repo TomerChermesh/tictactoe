@@ -1,4 +1,5 @@
 from typing import List
+import random
 from src.models.games import BoardCell, PlayerIndex, CellIndex
 
 from src.constants.game import WINNING_LINES
@@ -48,3 +49,10 @@ def check_game_winner_triplet(
 
 def is_board_full(board: List[BoardCell]) -> bool:
     return all(cell != 0 for cell in board)
+
+
+def get_random_empty_cell(board: List[BoardCell]) -> CellIndex:
+    empty_cells: List[CellIndex] = [i for i in range(len(board)) if board[i] == 0]
+    if not empty_cells:
+        raise ValueError('No empty cells available on the board')
+    return random.choice(empty_cells)

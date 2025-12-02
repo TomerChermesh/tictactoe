@@ -19,6 +19,7 @@ from src.utils.game import (
     is_board_full,
     ensure_valid_player_index,
     ensure_valid_cell_index,
+    get_random_empty_cell
 )
 from src.services.ai import AIService
 from src.utils.logger import logger
@@ -127,7 +128,7 @@ class GameService:
             raise GameNotFoundError(f'Game with id {game_id} not found')
 
         if game.is_finished:
-            self.logger.warning(f'Attempted move on finished game: game_id={game_id}')
+            logger.warning(f'Attempted move on finished game: game_id={game_id}')
             raise GameFinishedError('Game is already finished')
 
         if not validate_player_move(game.board, game.current_turn, player_id, cell_index):
@@ -181,11 +182,12 @@ class GameService:
             logger.warning(f'Game not found for AI move: game_id={game_id}')
             raise GameNotFoundError(f'Game with id {game_id} not found')
 
+        ai_move: int
         opponent_player_id: PlayerIndex = 2 if ai_player_id == 1 else 1
         try:
-            ai_move: int = self.ai_service.get_next_move(game.board, ai_player_id, opponent_player_id)
+            ai_move = self.ai_service.get_next_move(game.board, ai_player_id, opponent_player_id)
         except AIServiceError as e:
-            logger.error(f'AI move failed: {str(e)}', exception=e)
-            raise InvalidMoveError(f'AI move failed: {e}')
+            logger.warning(f'AI move failed, using random empty cell: {str(e)}')
+            ai_move = get_random_empty_cell(game.board)
 
         return await self.player_move(game_id, ai_player_id, ai_move)
