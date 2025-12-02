@@ -21,7 +21,8 @@ class GamesDAL(BaseDAL):
         return await self.model.get(game_id)
     
     async def get_last_game_for_matchup(self, matchup_id: PydanticObjectId) -> GameDocument | None:
-        return await self.model.find_one(self.model.matchup_id == matchup_id).sort('-created_at').first()
+        games: List[GameDocument] = await self.model.find(self.model.matchup_id == matchup_id).sort('-created_at').to_list()
+        return games[0] if games else None
 
     async def create_game(self, matchup_id: PydanticObjectId, starting_player: PlayerIndex) -> GameDocument:
         data: GameCreate = GameCreate(

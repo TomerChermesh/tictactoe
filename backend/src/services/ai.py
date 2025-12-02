@@ -73,10 +73,10 @@ class AIService:
             raise AIServiceError(error_message)
 
         try:
-            response: genai.types.Response = self.client.models.generate_content(
+            response: str = self.client.models.generate_content(
                 model=GEMINI_MODEL,
                 contents=prompt
-            )
+            ).text
         except APIError as e:
             error_message = 'Failed to get response from AI model due to API error'
             logger.error(error_message, exception=e)
@@ -91,8 +91,8 @@ class AIService:
         logger.info(f'AI selected cell index: {ai_cell_index}')
         return ai_cell_index
 
-    def validate_response(self, response: genai.types.Response, board: List[int]) -> int:
-        raw_text: str = (response.text or '').strip()
+    def validate_response(self, response: str, board: List[int]) -> int:
+        raw_text: str = response.strip()
         logger.debug(f'Response from Gemini: {raw_text}')
 
         if not raw_text:
