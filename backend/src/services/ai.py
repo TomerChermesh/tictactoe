@@ -8,19 +8,26 @@ from src.config import GEMINI_API_KEY
 from src.constants.ai import GEMINI_MODEL
 from src.constants.game import WINNING_LINES
 from src.exceptions import AIServiceError
+from src.utils.logger import logger
 
 
 class AIService:
     def __init__(self):
         self.client: genai.Client | None = None
-        self.init_client()
+        self._initialized: bool = False
 
     def init_client(self):
+        if self._initialized and self.client is not None:
+            return
+        
         try:
             self.client = genai.Client(api_key=GEMINI_API_KEY)
+            self._initialized = True
+            logger.info('Gemini Client initialized successfully')
         except Exception as e:
-            print(f'Error initializing Gemini Client: {e}')
+            logger.error('Error initializing Gemini Client', exception=e)
             self.client = None
+            self._initialized = False
 
     def get_next_move(self, board: List[int], ai_player_id: int, opponent_player_id: int) -> int:
         prompt: str = f"""
@@ -51,12 +58,16 @@ class AIService:
             
             """
 
-        print(
+        logger.debug(
             f'Sending prompt to Gemini: Current board: {board}, '
             f'AI player: {ai_player_id}, Opponent player: {opponent_player_id}'
         )
 
+        if not self._initialized:
+            self.init_client()
+
         if not self.client:
+            logger.error('AI service is unavailable due to missing API Key or failed initialization')
             raise AIServiceError('AI service is unavailable due to missing API Key or failed initialization.')
 
         try:
@@ -65,34 +76,33 @@ class AIService:
                 contents=prompt
             )
         except APIError as e:
+            logger.error('Failed to get response from AI model due to API error', exception=e)
             raise AIServiceError('Failed to get response from AI model due to API error.') from e
         except Exception as e:
+            logger.error('An unexpected error occurred during AI request', exception=e)
             raise AIServiceError('An unexpected error occurred during AI request.') from e
 
         raw_text: str = (response.text or '').strip()
-        print(f'Response from Gemini: {raw_text}')
+        logger.debug(f'Response from Gemini: {raw_text}')
 
         if not raw_text:
+            logger.error('AI returned an empty response')
             raise AIServiceError('AI returned an empty response.')
 
         match = re.search(r'\d+', raw_text)
         if not match:
+            logger.error(f'AI returned a non-numeric response: {raw_text!r}')
             raise AIServiceError(f'AI returned a non-numeric response: {raw_text!r}')
 
         ai_cell_index: int = int(match.group())
 
         if ai_cell_index < 0 or ai_cell_index > 8:
+            logger.error(f'AI returned an out-of-range cell index: {ai_cell_index}')
             raise AIServiceError(f'AI returned an out-of-range cell index: {ai_cell_index}')
 
         if ai_cell_index >= len(board) or board[ai_cell_index] != 0:
+            logger.error(f'AI selected an invalid or occupied cell index: {ai_cell_index}')
             raise AIServiceError(f'AI selected an invalid or occupied cell index: {ai_cell_index}')
 
+        logger.info(f'AI selected cell index: {ai_cell_index}')
         return ai_cell_index
-
-
-if __name__ == '__main__':
-    try:
-        result = AIService().get_next_move([1, 1, 2, 1, 2, 0, 0, 0, 0], 2, 1)
-        print('\nAI Response:', result)
-    except Exception as e:
-        print(f'Test failed: {e}')
