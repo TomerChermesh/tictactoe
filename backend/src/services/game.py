@@ -26,10 +26,10 @@ from src.utils.logger import logger
 
 
 class GameService:
-    def __init__(self, matchups_dal: MatchupsDAL, games_dal: GamesDAL, ai_service: AIService):
-        self.matchups_dal = matchups_dal
-        self.games_dal = games_dal
-        self.ai_service = ai_service
+    def __init__(self, matchups_dal: MatchupsDAL, games_dal: GamesDAL, ai_service: AIService) -> None:
+        self.matchups_dal: MatchupsDAL = matchups_dal
+        self.games_dal: GamesDAL = games_dal
+        self.ai_service: AIService = ai_service
 
     async def create_new_game(self, matchup_id: PydanticObjectId, starting_player_raw: int) -> GameDocument:
         try:
@@ -44,7 +44,7 @@ class GameService:
 
         return game
 
-    async def create_independent_new_game(self, matchup_id: PydanticObjectId, starting_player_raw: int) -> GameDocument:
+    async def create_independent_new_game(self, matchup_id: PydanticObjectId, starting_player_raw: int) -> UpdateResponse:
         game: GameDocument = await self.create_new_game(
             matchup_id=matchup_id,
             starting_player_raw=starting_player_raw
@@ -120,7 +120,8 @@ class GameService:
 
         game: GameDocument | None = await self.games_dal.get_game_by_id(game_id)
         
-
+        self.validate_move(game, player_id, cell_index)
+        
         new_board: List[BoardCell] = game.board.copy()
         new_board[cell_index] = player_id
 

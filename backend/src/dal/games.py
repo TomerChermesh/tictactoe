@@ -14,7 +14,7 @@ from src.models.games import (
 
 
 class GamesDAL(BaseDAL):
-    def __init__(self, model: Type[GameDocument] = GameDocument):
+    def __init__(self, model: Type[GameDocument] = GameDocument) -> None:
         super().__init__(model)
 
     async def get_game_by_id(self, game_id: str) -> GameDocument | None:

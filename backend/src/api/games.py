@@ -65,7 +65,12 @@ async def get_last_game_for_matchup(
 ):
     logger.info(f'Get last game for matchup: matchup_id={matchup_id}')
     try:
-        return await game_service.get_last_game_for_matchup(matchup_id)
+        game: GameDocument | None = await game_service.get_last_game_for_matchup(matchup_id)
+        if not game:
+            raise HTTPException(status_code=404, detail='Game not found for this matchup')
+        return game
+    except HTTPException:
+        raise
     except (GameNotFoundError, MatchupNotFoundError) as e:
         logger.warning(f'Game/Matchup not found: {str(e)}')
         raise HTTPException(status_code=404, detail=str(e))

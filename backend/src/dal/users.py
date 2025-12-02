@@ -4,8 +4,8 @@ from src.models.users import UserCreate, UserDocument
 
 
 class UsersDAL:
-    def __init__(self, model: Type[UserDocument] = UserDocument):
-        self.model = model
+    def __init__(self, model: Type[UserDocument] = UserDocument) -> None:
+        self.model: Type[UserDocument] = model
 
     async def get_user_by_id(self, user_id: str) -> UserDocument | None:
         return await self.model.get(user_id)

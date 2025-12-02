@@ -10,8 +10,8 @@ from src.models.games import PlayerIndex
 
 
 class MatchupsDAL(BaseDAL):
-    def __init__(self, model: Type[MatchupDocument] = MatchupDocument):
-        self.model = model
+    def __init__(self, model: Type[MatchupDocument] = MatchupDocument) -> None:
+        self.model: Type[MatchupDocument] = model
 
     async def create_matchup(
         self,
@@ -44,10 +44,10 @@ class MatchupsDAL(BaseDAL):
         matchup_id: str,
         player_id: PlayerIndex,
         name: str
-    ) -> MatchupDocument:
+    ) -> MatchupDocument | None:
         matchup: MatchupDocument | None = await self.model.get(matchup_id)
         if not matchup:
-            return None  
+            raise MatchupNotFoundError(f'Matchup with id {matchup_id} not found')
 
         data: MatchupUpdateName = MatchupUpdateName(
             player1_name=name if player_id == 1 else None,

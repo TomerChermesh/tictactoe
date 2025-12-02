@@ -11,8 +11,8 @@ D = TypeVar('D', bound=Document)
 P = TypeVar('P', bound=BaseModel)
 
 class BaseDAL:
-    def __init__(self, model: Type[D]):
-        self.model = model
+    def __init__(self, model: Type[D] = Document) -> None:
+        self.model: Type[D] = model
 
     async def create(self, data: P) -> D:
         now: datetime = datetime.now(timezone.utc)
