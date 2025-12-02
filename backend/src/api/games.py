@@ -74,9 +74,6 @@ async def get_last_game_for_matchup(
     except (GameNotFoundError, MatchupNotFoundError) as e:
         logger.warning(f'Game/Matchup not found: {str(e)}')
         raise HTTPException(status_code=404, detail=str(e))
-    except (InvalidMoveError, GameFinishedError) as e:
-        logger.warning(f'Invalid move or game finished: {str(e)}')
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f'Unexpected error in get_last_game_for_matchup: {str(e)}', exception=e)
         raise HTTPException(status_code=500, detail=str(e))
