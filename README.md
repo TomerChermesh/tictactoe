@@ -37,15 +37,19 @@ The AI plays as one of the players and uses a Gen AI model (Gemini) to suggest m
 ### 2.1. Clone the repository
 
 ```bash
-git clone <REPO_URL> tictactoe
+git clone https://github.com/TomerChermesh/tictactoe.git
 cd tictactoe
 ```
 
-Replace `<REPO_URL>` with your Git remote URL.
 
 ---
 
 ### 2.2. Backend setup (FastAPI)
+
+**Requirements:**
+- **Python 3.10 or higher** (tested with Python 3.11.3)
+  - The codebase uses union types with `|` syntax (e.g., `int | None`), which requires Python 3.10+.
+  - Verify your Python version: `python3 --version`
 
 #### 2.2.1. Create & activate virtualenv
 
@@ -76,11 +80,11 @@ Create a `.env` file in `backend/` (alongside `app.py`), for example:
 
 ```env
 # Mongo
-MONGO_URI=mongodb://localhost:27017
+MONGO_URI=<MONGODB_CONNECTION_STRING>
 MONGO_DB_NAME=tictactoe
 
 # JWT
-JWT_SECRET_KEY=change_me_in_prod
+JWT_SECRET_KEY=<JWT_SECRET_KEY>
 JWT_ALGORITHM=HS256
 JWT_EXPIRES_MINUTES=60
 
@@ -88,14 +92,13 @@ JWT_EXPIRES_MINUTES=60
 BACKEND_HOST=0.0.0.0
 BACKEND_PORT=8000
 
-# Gen AI (secret – real value in the separate document)
-GEMINI_API_KEY=YOUR_REAL_KEY_HERE
-GEMINI_MODEL=gemini-1.5-pro
+# GenAI
+GEMINI_API_KEY=<GEMINI_API_KEY>
 ```
 
 Notes:
 - For **non‑secret** vars, defaults exist in `src/config.py` and `src/constants/*`.
-- The **real `GEMINI_API_KEY` and other secrets are not committed**; they are documented in the dedicated Google Doc as requested.
+- The **real `GEMINI_API_KEY`, `MONGODB_CONNECTION_STRING` and `JWT_SECRET_KEY` are not committed**; they are documented in the dedicated Google Doc as requested.
 
 #### 2.2.4. Run the backend
 
@@ -122,20 +125,15 @@ npm install
 
 #### 2.3.1. Frontend environment variables
 
-Vite expects env vars in files like `.env`, `.env.development`, etc.  
-The main variable is typically:
+The frontend has a **default API URL** configured in `src/constants/api.ts`:
+- Default: `http://localhost:8000/api`
+- **No secrets are used in the frontend currently.**
+- **No `.env` file is required** for basic setup.
+
+If you need to override the API URL (e.g., for a different backend port or remote server), create `frontend/.env`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8000/api
-```
-
-- Non‑secret values like `VITE_API_BASE_URL` can be committed with defaults.
-- Secrets (if any on the frontend) should **not** be committed and should use the same Google Doc / local override strategy.
-
-Create `frontend/.env.development`:
-
-```env
-VITE_API_BASE_URL=http://localhost:8000/api
+VITE_API_BASE_URL=http://localhost:<PORT>/api
 ```
 
 #### 2.3.2. Run the frontend
@@ -156,7 +154,9 @@ By default Vite runs at:
 
 1. **Start backend** (FastAPI, port 8000).
 2. **Start frontend** (Vite dev server, port 5173).
-3. Open: `http://localhost:5173` in your browser.
+3. **Open in your default browser**: [👉🏼 Launch Application](http://localhost:5173)
+   - **On GitHub/GitLab**: Click the link above to open in your browser.
+   - **In IDE**: Copy `http://localhost:5173` and paste it into your browser.
 
 Login / register, create a matchup, and start playing against a friend or the AI.
 
