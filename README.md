@@ -383,3 +383,34 @@ In `GameService.ai_move(...)`:
 - **Change AI model or prompt** – edit `src/constants/ai.py` and `src/services/ai.py`.
 - **Add new pages / stats** – extend `frontend/src/pages` and `frontend/src/api/*` to expose new backend endpoints.
 - **Swap DB** – most logic goes through DALs; replacing Mongo/Beanie would mostly affect `src/db.py` and `src/dal/*`.
+
+---
+
+## 6. Future Improvements & Roadmap
+
+### 🎨 User Experience & Interface
+
+- **Dark mode support** – Add theme switching (light/dark) with persistent user preference.
+- **Mobile responsiveness** – Optimize UI components and layouts for mobile devices and tablets.
+- **Enhanced data visualization** – Add statistics pages, game history charts, win/loss analytics, and matchup comparisons.
+- **Symbol customization** – Allow players to choose custom symbols (X/O or other characters) when creating a new matchup.
+- **Color customization** – Enable players to select custom colors for their symbols and board elements.
+
+### 🎮 Game Features & Customization
+
+- **Per-game starting player selection** – Allow players to choose who starts each new game, instead of automatically alternating based on the previous game's outcome.
+- **AI difficulty levels** – Implement multiple AI difficulty tiers (Easy, Medium, Hard) with different strategies and decision-making approaches.
+- **AI model selection** – Allow users to choose between different AI models (e.g., different Gemini models) for varied gameplay experiences.
+
+### 👤 User Management & Settings
+
+- **Extended user settings** – Add preferences for notifications, game defaults, privacy settings, and display options.
+- **Additional user data** – Expand user profiles with avatars, game statistics, achievements, and social features.
+
+### 🔧 Technical & Infrastructure
+
+- **Enhanced logging system** – Migrate from local file-based logging to a cloud/distributed logging solution (e.g., ELK stack, CloudWatch, Datadog) for better observability in production.
+- **Improved error handling** – Implement more granular error types, user-friendly error messages, and better error recovery mechanisms across the stack.
+- **Comprehensive testing** – Expand test coverage with integration tests, end-to-end (E2E) tests, and performance tests to ensure reliability and maintainability.
+- **CI/CD pipeline** – Set up continuous integration and deployment with automated linting, type checking, testing, and deployment workflows.
+- **Granular rate limiting** – Implement per-endpoint or per-user rate limiting strategies, allowing different limits for different API routes or user tiers.
