@@ -26,6 +26,10 @@ const HomePage: React.FC = () => {
     navigate('/game')
   }
 
+  const handleMatchupsList = () => {
+    navigate('/matchups')
+  }
+
   if (showNewMatchup) {
     return (
       <NewMatchupBox onConfirm={handleNewMatchupConfirm}/>
@@ -56,6 +60,10 @@ const HomePage: React.FC = () => {
 
             <Button variant='outlined' color='warning' fullWidth onClick={handleRules}>
               Rules
+            </Button>
+
+            <Button variant='outlined' color='secondary' fullWidth onClick={handleMatchupsList}>
+              Matchups List
             </Button>
           </Stack>
         </CardContent>

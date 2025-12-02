@@ -18,7 +18,7 @@ const normalizeGame = (g: any): Game => ({
     updatedAt: g.updated_at
   })
 
-const normalizeMatchup = (m: any): Matchup => ({
+export const normalizeMatchup = (m: any): Matchup => ({
     id: m.id ?? m._id,
     userId: m.user_id,
     mode: m.mode,

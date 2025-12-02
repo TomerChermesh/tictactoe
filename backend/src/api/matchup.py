@@ -5,6 +5,8 @@ from src.dependencies import get_game_service
 from src.services.game import GameService
 from src.models.responses import UpdateResponse
 from src.exceptions import MatchupNotFoundError
+from src.models.matchups import MatchupDocument
+from typing import List
 
 router: APIRouter = APIRouter(prefix='/matchup')
 
@@ -25,6 +27,14 @@ async def create_new_matchup(
         mode,
         starting_player,
     )
+
+
+@router.get('/list', response_model=List[MatchupDocument])
+async def get_matchups_list(
+    game_service: GameService = Depends(get_game_service),
+    current_user: UserDocument = Depends(get_current_user),
+):
+    return await game_service.get_matchups_list_for_user(current_user.id)
 
 
 @router.get('/{matchup_id}', response_model=UpdateResponse)
@@ -48,3 +58,5 @@ async def update_player_name(
         return await game_service.update_player_name(matchup_id, player_id, name)
     except MatchupNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+

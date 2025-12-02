@@ -77,7 +77,7 @@ class GameService:
 
         return UpdateResponse(matchup=matchup, game=game)
 
-    async def get_matchups_list_for_user(self, user_id: str) -> List[MatchupDocument]:
+    async def get_matchups_list_for_user(self, user_id: PydanticObjectId) -> List[MatchupDocument]:
         return await self.matchups_dal.list_matchups_for_user(user_id)
 
     async def get_matchup_active_game(self, matchup_id: str) -> UpdateResponse:
