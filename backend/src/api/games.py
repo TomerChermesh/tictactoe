@@ -15,7 +15,7 @@ from beanie import PydanticObjectId
 from src.utils.rate_limit import rate_limiter
 from src.utils.logger import logger
 
-router: APIRouter = APIRouter(prefix='/game', dependencies=[Depends(rate_limiter)])
+router: APIRouter = APIRouter(prefix='/games', dependencies=[Depends(rate_limiter)])
 
 
 @router.post('/new', response_model=UpdateResponse)
@@ -57,7 +57,7 @@ async def player_move(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get('/last_for_matchup', response_model=GameDocument)
+@router.get('/last_game', response_model=GameDocument)
 async def get_last_game_for_matchup(
     matchup_id: PydanticObjectId,
     game_service: GameService = Depends(get_game_service),
@@ -75,3 +75,4 @@ async def get_last_game_for_matchup(
     except Exception as e:
         logger.error(f'Unexpected error in get_last_game_for_matchup: {str(e)}', exception=e)
         raise HTTPException(status_code=500, detail=str(e))
+

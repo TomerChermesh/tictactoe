@@ -10,7 +10,7 @@ from typing import List
 from src.utils.rate_limit import rate_limiter
 from src.utils.logger import logger
 
-router: APIRouter = APIRouter(prefix='/matchup', dependencies=[Depends(rate_limiter)])
+router: APIRouter = APIRouter(prefix='/matchups', dependencies=[Depends(rate_limiter)])
 
 
 @router.post('/new', response_model=UpdateResponse)
@@ -65,5 +65,4 @@ async def update_player_name(
     except MatchupNotFoundError as e:
         logger.warning(f'Matchup not found for update_player_name: matchup_id={matchup_id}')
         raise HTTPException(status_code=404, detail=str(e))
-
 
