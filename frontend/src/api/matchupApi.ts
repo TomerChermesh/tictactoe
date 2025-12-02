@@ -1,8 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { UpdateResponse, MatchupMode } from '../types/matchup'
 import type { PlayerID } from '../types/players'
-import { normalizeResponse } from '../utils/apiMappers'
+import { normalizeResponse, normalizeMatchup } from '../utils/apiMappers'
 import { baseQueryWithReauth } from './baseQuery'
+import type { Matchup } from '../types/matchup'
 
 export const matchupApi = createApi({
   reducerPath: 'matchupApi',
@@ -45,10 +46,14 @@ export const matchupApi = createApi({
       }),
       transformResponse: (response: any): UpdateResponse => (normalizeResponse(response)),
       invalidatesTags: (_result, _error, arg) => [{ type: 'Matchup', id: arg.matchupId }]
+    }),
+    getMatchupsList: builder.query<Matchup[], void>({
+      query: () => '/matchup/list',
+      transformResponse: (response: any): Matchup[] => (response.map((m: any) => normalizeMatchup(m))),
+      providesTags: ['Matchup']
     })
   })
 })
 
-export const { useCreateNewMatchupMutation, useGetMatchupQuery, useUpdatePlayerNameMutation } =
-  matchupApi
+export const { useCreateNewMatchupMutation, useGetMatchupQuery, useUpdatePlayerNameMutation, useGetMatchupsListQuery } = matchupApi
 
