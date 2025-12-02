@@ -36,10 +36,10 @@ class Logger:
         append_to_file(log_file_path, log_message)
 
     def debug(self, message: str) -> None:
-        self._log(LogLevel.DEBUG, message, exception)
+        self._log(LogLevel.DEBUG, message)
 
     def info(self, message: str) -> None:
-        self._log(LogLevel.INFO, message, exception)
+        self._log(LogLevel.INFO, message)
 
     def warning(self, message: str, exception: Exception | None = None) -> None:
         self._log(LogLevel.WARNING, message, exception)
