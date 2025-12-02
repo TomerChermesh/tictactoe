@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import GamePage from './pages/GamePage'
 import MatchupsListPage from './pages/MatchupsListPage'
+import RulesPage from './pages/RulesPage'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated)
@@ -48,6 +49,13 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <MatchupsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path='/rules'
+          element={
+            <ProtectedRoute>
+              <RulesPage />
             </ProtectedRoute>
           }
         />
