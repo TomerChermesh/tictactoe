@@ -1,6 +1,9 @@
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+from pathlib import Path
+
+from src.utils.files import append_to_file
 
 
 class LogLevel(str, Enum):
@@ -11,18 +14,30 @@ class LogLevel(str, Enum):
     CRITICAL = 'CRITICAL'
 
 
-class Logger:   
+from src.constants.logger import LOG_DIR_PATH, LOG_FILE_DATE_FORMAT
+
+class Logger:
     def __init__(self, name: str = 'app'):
         self.name: str = name
+        self.log_dir: Path = Path(LOG_DIR_PATH)
+
+    def _get_log_file_path_for_today(self) -> str:
+        today_str: str = datetime.now().strftime(LOG_FILE_DATE_FORMAT)
+        return str(self.log_dir / f'{today_str}.log')
 
     def _log(self, level: LogLevel, message: str, exception: Optional[Exception] = None) -> None:
         timestamp: str = datetime.now().isoformat()
         log_message: str = f'[{timestamp}] [{level.value}] [{self.name}] {message}'
-        
+
         if exception:
             log_message += f' | Exception: {type(exception).__name__}: {str(exception)}'
-        
+
+        # Print to terminal
         print(log_message)
+
+        # Append to today's log file
+        log_file_path: str = self._get_log_file_path_for_today()
+        append_to_file(log_file_path, log_message)
 
     def debug(self, message: str, exception: Optional[Exception] = None) -> None:
         self._log(LogLevel.DEBUG, message, exception)
