@@ -19,7 +19,15 @@ const baseQuery = fetchBaseQuery({
 })
 
 export const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
-  const result = await baseQuery(args, api, extraOptions)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 10_000)
+
+  let result
+  try {
+    result = await baseQuery(args, api, { ...extraOptions, signal: controller.signal })
+  } finally {
+    clearTimeout(timeoutId)
+  }
   
   if (result.error && (result.error as FetchBaseQueryError).status === 401) {
     api.dispatch(clearMatchup())
