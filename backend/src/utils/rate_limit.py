@@ -5,6 +5,7 @@ from typing import Deque, Dict
 from fastapi import Request, HTTPException, status
 
 from src.constants.fastapi import RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW_SECONDS
+from src.utils.logger import logger
 
 
 
@@ -22,6 +23,7 @@ async def rate_limiter(request: Request) -> None:
     bucket.popleft()
 
   if len(bucket) >= RATE_LIMIT_MAX_REQUESTS:
+    logger.warning(f'Rate limit exceeded: client_ip={client_ip}, path={request.url.path}, requests={len(bucket)}')
     raise HTTPException(
       status_code=status.HTTP_429_TOO_MANY_REQUESTS,
       detail='Too many requests, please slow down.'

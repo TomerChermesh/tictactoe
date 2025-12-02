@@ -13,6 +13,7 @@ from src.exceptions import (
 )
 from beanie import PydanticObjectId
 from src.utils.rate_limit import rate_limiter
+from src.utils.logger import logger
 
 router: APIRouter = APIRouter(prefix='/game', dependencies=[Depends(rate_limiter)])
 
@@ -24,6 +25,7 @@ async def create_new_game(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user)
 ):
+    logger.info(f'Create new game: matchup_id={matchup_id}, starting_player={starting_player}')
     return await game_service.create_independent_new_game(matchup_id, starting_player)
 
 
@@ -36,7 +38,7 @@ async def player_move(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user)
 ):
-    print(f'player_move: game_id={game_id}, player_id={player_id}, cell_index={cell_index}, is_ai_move={is_ai_move}')
+    logger.info(f'Player move request: game_id={game_id}, player_id={player_id}, cell_index={cell_index}, is_ai_move={is_ai_move}')
     try:
         if is_ai_move:
             return await game_service.ai_move(game_id, player_id)
@@ -45,10 +47,13 @@ async def player_move(
         else:
             raise InvalidMoveError('Cell index is required')
     except (GameNotFoundError, MatchupNotFoundError) as e:
+        logger.warning(f'Game/Matchup not found: {str(e)}')
         raise HTTPException(status_code=404, detail=str(e))
     except (InvalidMoveError, GameFinishedError) as e:
+        logger.warning(f'Invalid move or game finished: {str(e)}')
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        logger.error(f'Unexpected error in player_move: {str(e)}', exception=e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -58,11 +63,15 @@ async def get_last_game_for_matchup(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user)
 ):
+    logger.info(f'Get last game for matchup: matchup_id={matchup_id}')
     try:
         return await game_service.get_last_game_for_matchup(matchup_id)
     except (GameNotFoundError, MatchupNotFoundError) as e:
+        logger.warning(f'Game/Matchup not found: {str(e)}')
         raise HTTPException(status_code=404, detail=str(e))
     except (InvalidMoveError, GameFinishedError) as e:
+        logger.warning(f'Invalid move or game finished: {str(e)}')
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        logger.error(f'Unexpected error in get_last_game_for_matchup: {str(e)}', exception=e)
         raise HTTPException(status_code=500, detail=str(e))

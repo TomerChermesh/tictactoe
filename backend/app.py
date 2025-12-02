@@ -10,6 +10,7 @@ from src.api.auth import router as auth_router
 from src.api.game import router as game_router
 from src.api.matchup import router as matchup_router
 from src.constants.fastapi import FASTAPI_TITLE, FASTAPI_VERSION, VALID_ORIGINS
+from src.utils.logger import logger
 
 
 def create_app() -> FastAPI:
@@ -25,7 +26,14 @@ def create_app() -> FastAPI:
 
     @app.on_event('startup')
     async def on_startup():
-        await init_db()
+        logger.info('Starting application...')
+        try:
+            await init_db()
+            logger.info('Database initialized successfully')
+        except Exception as e:
+            logger.critical('Failed to initialize database', exception=e)
+            raise
+        logger.info(f'Application started: {FASTAPI_TITLE} v{FASTAPI_VERSION}')
 
     app.include_router(health_router, prefix='/api')
     app.include_router(auth_router, prefix='/api')

@@ -8,6 +8,7 @@ from src.exceptions import MatchupNotFoundError
 from src.models.matchups import MatchupDocument
 from typing import List
 from src.utils.rate_limit import rate_limiter
+from src.utils.logger import logger
 
 router: APIRouter = APIRouter(prefix='/matchup', dependencies=[Depends(rate_limiter)])
 
@@ -21,6 +22,7 @@ async def create_new_matchup(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user),
 ):
+    logger.info(f'Create new matchup request: user_id={current_user.id}, player1={player1_name}, player2={player2_name}, mode={mode}')
     return await game_service.create_new_matchup(
         current_user.id,
         player1_name,
@@ -35,6 +37,7 @@ async def get_matchups_list(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user),
 ):
+    logger.info(f'Get matchups list request: user_id={current_user.id}')
     return await game_service.get_matchups_list_for_user(current_user.id)
 
 
@@ -44,6 +47,7 @@ async def get_matchup(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user),
 ):
+    logger.info(f'Get matchup request: matchup_id={matchup_id}, user_id={current_user.id}')
     return await game_service.get_matchup_active_game(matchup_id)
 
 
@@ -55,9 +59,11 @@ async def update_player_name(
     game_service: GameService = Depends(get_game_service),
     current_user: UserDocument = Depends(get_current_user),
 ):
+    logger.info(f'Update player name request: matchup_id={matchup_id}, player_id={player_id}, new_name={name}')
     try:
         return await game_service.update_player_name(matchup_id, player_id, name)
     except MatchupNotFoundError as e:
+        logger.warning(f'Matchup not found for update_player_name: matchup_id={matchup_id}')
         raise HTTPException(status_code=404, detail=str(e))
 
 
