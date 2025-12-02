@@ -12,8 +12,9 @@ from src.exceptions import (
     GameFinishedError
 )
 from beanie import PydanticObjectId
+from src.utils.rate_limit import rate_limiter
 
-router: APIRouter = APIRouter(prefix='/game')
+router: APIRouter = APIRouter(prefix='/game', dependencies=[Depends(rate_limiter)])
 
 
 @router.post('/new', response_model=UpdateResponse)

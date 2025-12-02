@@ -9,9 +9,10 @@ from src.dal.users import UsersDAL
 from src.dependencies import get_users_dal
 from src.security.password import hash_password, verify_password
 from src.security.auth import create_access_token, get_current_user
+from src.utils.rate_limit import rate_limiter
 
 
-router: APIRouter = APIRouter(prefix='/auth')
+router: APIRouter = APIRouter(prefix='/auth', dependencies=[Depends(rate_limiter)])
 
 
 @router.post('/register', response_model=LoginResponse)

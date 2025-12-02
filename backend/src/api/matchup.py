@@ -7,8 +7,9 @@ from src.models.responses import UpdateResponse
 from src.exceptions import MatchupNotFoundError
 from src.models.matchups import MatchupDocument
 from typing import List
+from src.utils.rate_limit import rate_limiter
 
-router: APIRouter = APIRouter(prefix='/matchup')
+router: APIRouter = APIRouter(prefix='/matchup', dependencies=[Depends(rate_limiter)])
 
 
 @router.post('/new', response_model=UpdateResponse)
