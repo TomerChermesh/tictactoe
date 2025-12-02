@@ -25,6 +25,7 @@ const GamePage: React.FC = () => {
   const [createNewGame, { isLoading: isResetting }] = useCreateNewGameMutation()
 
   const [error, setError] = useState<string | null>(null)
+  const [isAiThinking, setIsAiThinking] = useState<boolean>(false)
 
   useEffect(() => {
     if (!currentGame || !currentMatchup) {
@@ -51,7 +52,13 @@ const GamePage: React.FC = () => {
   }, [currentGame, currentMatchup])
 
   useEffect(() => {
-    if (currentMatchup.mode === 'ai' && currentGame.currentTurn === currentMatchup.player2.id) {
+    if (
+      currentMatchup.mode === 'ai' &&
+      !currentGame.isFinished &&
+      currentGame.currentTurn === currentMatchup.player2.id &&
+      !isAiThinking &&
+      !error
+    ) {
       handleMove(true)
     }
   }, [currentGame.currentTurn])
@@ -63,6 +70,10 @@ const GamePage: React.FC = () => {
   }
 
   const handleMove = async (isAiMove: boolean, index?: number) => {
+    if (isAiMove) {
+      setIsAiThinking(true)
+    }
+
     try {
       const response = await playerMove({
         gameId: currentGame.id,
@@ -80,12 +91,20 @@ const GamePage: React.FC = () => {
 
       setError(null)
     } catch (err: any) {
-      handleError(err.data.detail)
+      handleError(err?.data?.detail ?? 'Failed to perform move')
+    } finally {
+      if (isAiMove) {
+        setIsAiThinking(false)
+      }
     }
   }
 
 
   const handleCellClick = async (index?: number) => {
+    if (isAiThinking) {
+      return
+    }
+
     if (currentGame.isFinished) {
       handleError('The game is already finished')
       return
@@ -99,17 +118,9 @@ const GamePage: React.FC = () => {
     handleMove(false, index)
   }
 
-  const handlePlayer1NameChange = async (name: string) => {
-    if (!currentMatchup) return
-    await handleUpdatePlayerName(currentMatchup.player1.id, name)
-  }
-
-  const handlePlayer2NameChange = async (name: string) => {
-    if (!currentMatchup || currentMatchup.mode === 'ai') return
-    await handleUpdatePlayerName(currentMatchup.player2.id, name)
-  }
-
   const handleUpdatePlayerName = async (playerId: PlayerID, name: string) => {
+    if (!currentMatchup) return
+
     try {
       const response = await updatePlayerName({
         matchupId: currentMatchup.id,
@@ -164,7 +175,9 @@ const GamePage: React.FC = () => {
           <PlayerPanel
             player={currentMatchup.player1}
             isActive={!currentGame.isFinished && currentGame.currentTurn === currentMatchup.player1.id}
-            onNameChange={handlePlayer1NameChange}
+            onNameChange={name => handleUpdatePlayerName(currentMatchup.player1.id, name)}
+            isAi={false}
+            isThinking={false}
           />
         </Box>
 
@@ -202,7 +215,14 @@ const GamePage: React.FC = () => {
           <PlayerPanel
             player={currentMatchup.player2}
             isActive={!currentGame.isFinished && currentGame.currentTurn === currentMatchup.player2.id}
-            onNameChange={handlePlayer2NameChange}
+            onNameChange={name => handleUpdatePlayerName(currentMatchup.player2.id, name)}
+            isAi={currentMatchup.mode === 'ai'}
+            isThinking={
+              currentMatchup.mode === 'ai' &&
+              !currentGame.isFinished &&
+              currentGame.currentTurn === currentMatchup.player2.id &&
+              isAiThinking
+            }
           />
         </Box>
       </Box>

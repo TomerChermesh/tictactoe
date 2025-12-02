@@ -10,6 +10,7 @@ from src.exceptions import (
     MatchupNotFoundError,
     InvalidMoveError,
     GameFinishedError,
+    AIServiceError,
 )
 from src.utils.game import (
     validate_player_move,
@@ -170,6 +171,9 @@ class GameService:
             raise GameNotFoundError(f'Game with id {game_id} not found')
 
         opponent_player_id: PlayerIndex = 2 if ai_player_id == 1 else 1
-        ai_move: int = self.ai_service.get_next_move(game.board, ai_player_id, opponent_player_id)
+        try:
+            ai_move: int = self.ai_service.get_next_move(game.board, ai_player_id, opponent_player_id)
+        except AIServiceError as e:
+            raise InvalidMoveError(f'AI move failed: {e}')
 
         return await self.player_move(game_id, ai_player_id, ai_move)

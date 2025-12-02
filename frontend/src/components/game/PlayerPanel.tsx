@@ -8,9 +8,17 @@ type PlayerPanelProps = {
   player: Player
   onNameChange: (name: string) => void
   isActive: boolean
+  isAi?: boolean
+  isThinking?: boolean
 }
 
-const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, onNameChange, isActive }) => {
+const PlayerPanel: React.FC<PlayerPanelProps> = ({
+  player,
+  onNameChange,
+  isActive,
+  isAi = false,
+  isThinking = false
+}) => {
   const [localName, setLocalName] = useState(player.name)
   
   useEffect(() => {
@@ -19,7 +27,7 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, onNameChange, isActiv
 
   const symbol: SymbolValue = toSymbol(player.id)
   const isX: boolean = symbol === 'X'
-  const chipBg = isX ? 'warning.main' : 'primary.main'
+  const chipBg: string = isX ? 'warning.main' : 'primary.main'
 
   const handleNameBlur = () => {
     const trimmedName = localName.trim()
@@ -64,6 +72,7 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, onNameChange, isActiv
           <Stack spacing={2}>
             <TextField
               label='Player name'
+              disabled={isAi}
               variant='standard'
               fullWidth
               value={localName}
@@ -96,6 +105,15 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ player, onNameChange, isActiv
                   {player.score}
                 </Typography>
               </Paper>
+
+              {isAi && isActive && isThinking && (
+                <Typography
+                  variant='body2'
+                  sx={{ mt: 0.5, textAlign: 'center', fontStyle: 'italic', color: 'text.secondary' }}
+                >
+                  Thinking...
+                </Typography>
+              )}
             </Box>
             
           </Stack>
