@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography, Stack, Divider } from '@mui/materia
 const RulesPage: React.FC = () => {
   return (
     <Box sx={{ width: '100%', maxWidth: 800 }}>
-      <Typography variant='h3' component='h1' align='center' sx={{ mb: 2, color: 'black' }}>
+      <Typography variant='h4' align='center' sx={{ mb: 2, color: 'black' }}>
         Rules
       </Typography>
 
