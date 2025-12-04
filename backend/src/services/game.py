@@ -162,17 +162,17 @@ class GameService:
     async def validate_move(self, game: GameDocument, player_id: PlayerIndex, cell_index: CellIndex) -> None:
         warning_message: str
         if not game:
-            warning_message = f'Game not found: game_id={game_id}'
+            warning_message = f'Game not found: game_id={game.id}'
             logger.warning(warning_message)
             raise GameNotFoundError(warning_message)
 
         if game.is_finished:
-            warning_message = f'Attempted move on finished game: game_id={game_id}'
+            warning_message = f'Attempted move on finished game: game_id={game.id}'
             logger.warning(warning_message)
             raise GameFinishedError(warning_message)
 
         if not validate_player_move(game.board, game.current_turn, player_id, cell_index):
-            warning_message = f'Invalid move: game_id={game_id}, player_id={player_id}, cell_index={cell_index}'
+            warning_message = f'Invalid move: game_id={game.id}, player_id={player_id}, cell_index={cell_index}'
             logger.warning(warning_message)
             raise InvalidMoveError(warning_message)
 

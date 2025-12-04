@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, timedelta, timezone
 from typing import Dict
 from unittest.mock import Mock, patch, AsyncMock
-from jose import jwt, JWTError
+from jose import jwt
 from fastapi import HTTPException, status
 from src.security.auth import create_access_token, get_current_user
 from src.config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_EXPIRES_MINUTES
