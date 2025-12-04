@@ -31,6 +31,31 @@ class TestEnsureValidPlayerIndex:
         with pytest.raises(ValueError, match='Player index must be 1 or 2'):
             ensure_valid_player_index(value)
 
+class TestEnsureValidCellIndex:   
+    @pytest.mark.parametrize('value, expected_result', [
+        (0, 0),
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        (6, 6),
+        (7, 7),
+        (8, 8),
+    ], ids=['valid_0', 'valid_1', 'valid_2', 'valid_3', 'valid_4', 'valid_5', 'valid_6', 'valid_7', 'valid_8'])
+    def test_happy_ensure_valid_cell_index(self, value: int, expected_result: CellIndex) -> None:
+        result: CellIndex = ensure_valid_cell_index(value)
+        assert result == expected_result
+
+    @pytest.mark.parametrize('value', [
+        9,
+        -1,
+        100,
+    ], ids=['invalid_9', 'invalid_negative', 'invalid_large'])
+    def test_sad_ensure_valid_player_index(self, value: int) -> None:
+        with pytest.raises(ValueError, match='Cell index must be between 0 and 8'):
+            ensure_valid_cell_index(value)
+
 
 
 class TestValidatePlayerMove:    

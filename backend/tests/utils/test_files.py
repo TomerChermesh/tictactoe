@@ -1,6 +1,5 @@
 import pytest
 import os
-from pathlib import Path
 from typing import List
 from src.utils.files import (
     create_file,
