@@ -1,4 +1,5 @@
 from typing import Type
+from datetime import datetime
 
 from src.models.users import UserCreate, UserDocument
 
@@ -14,11 +15,12 @@ class UsersDAL:
         return await self.model.find_one(self.model.email == email)
 
     async def create_user(self, email: str, password_hash: str) -> UserDocument:
-        payload: UserCreate = UserCreate(
+        now: datetime = datetime.utcnow()
+        user: UserDocument = self.model(
             email=email,
-            password=password_hash
+            password=password_hash,
+            created_at=now,
+            updated_at=now
         )
-
-        user: UserDocument = self.model(**payload.model_dump(exclude_none=True))
         await user.insert()
         return user
