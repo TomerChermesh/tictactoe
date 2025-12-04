@@ -1,11 +1,9 @@
-from pymongo.cursor import Cursor
-from typing import Optional, Dict, Any, List, Generic, TypeVar, Type
+from typing import TypeVar, Type
 from datetime import datetime, timezone
 
 from beanie import Document
 from pydantic import BaseModel
 
-from src.utils.db import str_to_object_id
 
 D = TypeVar('D', bound=Document)
 P = TypeVar('P', bound=BaseModel)
@@ -25,7 +23,7 @@ class BaseDAL:
             setattr(doc, key, value)
 
         if hasattr(doc, 'updated_at'):
-            setattr(doc, 'updated_at', datetime.utcnow())
+            setattr(doc, 'updated_at', datetime.now(timezone.utc))
 
         await doc.save()
         return doc

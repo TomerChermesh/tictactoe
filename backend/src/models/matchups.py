@@ -1,4 +1,3 @@
-from typing import Optional
 from enum import Enum
 
 from beanie import Document, PydanticObjectId
@@ -26,13 +25,13 @@ class MatchupCreate(MatchupBase):
 
 
 class MatchupUpdateName(BaseModel):
-    player1_name: Optional[str] = None
-    player2_name: Optional[str] = None
+    player1_name: str | None = None
+    player2_name: str | None = None
 
 
 class MatchupUpdateScore(BaseModel):
-    player1_score: Optional[int] = None
-    player2_score: Optional[int] = None
+    player1_score: int | None = None
+    player2_score: int | None = None
 
 
 class MatchupDocument(MatchupBase, Document):

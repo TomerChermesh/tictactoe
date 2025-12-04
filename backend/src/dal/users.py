@@ -1,7 +1,7 @@
 from typing import Type
-from datetime import datetime
+from datetime import datetime, timezone
 
-from src.models.users import UserCreate, UserDocument
+from src.models.users import UserDocument
 
 
 class UsersDAL:
@@ -15,7 +15,7 @@ class UsersDAL:
         return await self.model.find_one(self.model.email == email)
 
     async def create_user(self, email: str, password_hash: str) -> UserDocument:
-        now: datetime = datetime.utcnow()
+        now: datetime = datetime.now(timezone.utc)
         user: UserDocument = self.model(
             email=email,
             password=password_hash,

@@ -1,5 +1,3 @@
-# src/dal/matchups.py
-
 from typing import List, Type
 
 from beanie import PydanticObjectId
@@ -7,7 +5,7 @@ from beanie import PydanticObjectId
 from src.dal.base_dal import BaseDAL
 from src.models.matchups import MatchMode, MatchupCreate, MatchupUpdateName, MatchupUpdateScore, MatchupDocument
 from src.models.games import PlayerIndex
-
+from src.exceptions import MatchupNotFoundError
 
 class MatchupsDAL(BaseDAL):
     def __init__(self, model: Type[MatchupDocument] = MatchupDocument) -> None:
@@ -63,7 +61,7 @@ class MatchupsDAL(BaseDAL):
     ) -> MatchupDocument | None:
         matchup: MatchupDocument | None = await self.model.get(matchup_id)
         if not matchup:
-            return None
+            raise MatchupNotFoundError(f'Matchup with id {matchup_id} not found')
 
         data: MatchupUpdateScore = MatchupUpdateScore(
             player1_score=matchup.player1_score + 1 if player_id == 1 else None,

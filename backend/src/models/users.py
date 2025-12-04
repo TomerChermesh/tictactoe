@@ -1,9 +1,7 @@
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
 
 from beanie import Document, Indexed
-from beanie import PydanticObjectId
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 
 
 class UserCreate(BaseModel):
@@ -22,5 +20,5 @@ class UserDocument(Document):
         name = 'users'
 
     async def touch(self) -> None:
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
         await self.save()
