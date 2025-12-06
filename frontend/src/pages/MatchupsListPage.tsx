@@ -150,7 +150,7 @@ const MatchupsListPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ height: 600, width: '100%'}}>
+    <Box sx={{ width: '100%', boxSizing: 'border-box' }}>
         {reloadError && (
             <SnackbarAlert
                 open={true}
@@ -172,7 +172,12 @@ const MatchupsListPage: React.FC = () => {
             paginationModel: { pageSize: 9 }
           }
         }}
-        sx={{ '& .MuiDataGrid-cell:hover': { cursor: 'pointer' } }}
+        sx={{ 
+          '& .MuiDataGrid-cell:hover': { cursor: 'pointer' },
+          width: '100%',
+          height: 'calc(100vh - 300px)',
+          boxSizing: 'border-box'
+        }}
       />
     </Box>
   )

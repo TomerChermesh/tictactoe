@@ -10,7 +10,7 @@ from src.exceptions import (
     MatchupNotFoundError,
     InvalidMoveError,
     GameFinishedError,
-    AIServiceError,
+    AIServiceError
 )
 from src.utils.game import (
     validate_player_move,
@@ -18,10 +18,10 @@ from src.utils.game import (
     get_next_turn,
     is_board_full,
     ensure_valid_player_index,
-    ensure_valid_cell_index,
-    get_random_empty_cell
-)
+    ensure_valid_cell_index
+    )
 from src.services.ai import AIService
+from src.utils.ai_fallback import get_fallback_move
 from src.utils.logger import logger
 
 
@@ -120,7 +120,7 @@ class GameService:
 
         game: GameDocument | None = await self.games_dal.get_game_by_id(game_id)
         
-        self.validate_move(game, player_id, cell_index)
+        await self.validate_move(game, player_id, cell_index)
         
         new_board: List[BoardCell] = game.board.copy()
         new_board[cell_index] = player_id
@@ -161,11 +161,6 @@ class GameService:
 
     async def validate_move(self, game: GameDocument, player_id: PlayerIndex, cell_index: CellIndex) -> None:
         warning_message: str
-        if not game:
-            warning_message = f'Game not found: game_id={game.id}'
-            logger.warning(warning_message)
-            raise GameNotFoundError(warning_message)
-
         if game.is_finished:
             warning_message = f'Attempted move on finished game: game_id={game.id}'
             logger.warning(warning_message)
@@ -193,8 +188,8 @@ class GameService:
         try:
             ai_move = self.ai_service.get_next_move(game.board, ai_player_id, opponent_player_id)
         except AIServiceError as e:
-            logger.warning(f'AI move failed, using random empty cell: {str(e)}')
-            ai_move = get_random_empty_cell(game.board)
+            logger.warning(f'AI move failed, using deterministic fallback move: {str(e)}')
+            ai_move = get_fallback_move(game.board, ai_player_id, opponent_player_id)
 
         return await self.player_move(game_id, ai_player_id, ai_move)
 

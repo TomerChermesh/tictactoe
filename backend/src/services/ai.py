@@ -5,7 +5,7 @@ from google import genai
 from google.genai.errors import APIError
 
 from src.config import GEMINI_API_KEY
-from src.constants.ai import GEMINI_MODEL, AI_RESPONSE_REGEX
+from src.constants.ai import GEMINI_MODEL, AI_RESPONSE_REGEX, AI_TIMEOUT_SECONDS
 from src.constants.game import WINNING_LINES
 from src.exceptions import AIServiceError
 from src.utils.logger import logger
@@ -15,13 +15,14 @@ class AIService:
     def __init__(self) -> None:
         self.client: genai.Client | None = None
         self._initialized: bool = False
+        self._rules_cache_name: str | None = None
 
     def init_client(self) -> None:
         if self._initialized and self.client is not None:
             return
-        
+
         try:
-            self.client = genai.Client(api_key=GEMINI_API_KEY)
+            self.client = genai.Client(api_key=GEMINI_API_KEY, http_options=genai.types.HttpOptions(timeout=AI_TIMEOUT_SECONDS))
             self._initialized = True
             logger.info('Gemini Client initialized successfully')
         except Exception as e:
@@ -31,33 +32,6 @@ class AIService:
 
     def get_next_move(self, board: List[int], ai_player_id: int, opponent_player_id: int) -> int:
         error_message: str
-        prompt: str = f"""
-            You are a Tic-Tac-Toe engine.
-            
-            Game Goal: 
-            Win the game by placing 3 of your marks in a horizontal, vertical, or diagonal row. 
-            This is the list of winning lines: {WINNING_LINES} 
-            
-            Board rules: - 3x3 grid, which is represented as a 1D array of 9 cells.
-            - Each cell is "X" which represented by 1, "O" which represented by 2, or 0 for empty.
-            - You play as {ai_player_id}.
-            - {opponent_player_id} is the opponent.
-            - It's {ai_player_id}'s turn.
-            - The game is not finished yet.
-            - You are only allowed to return index of the cell that is not occupied, e.g. with 0 value.
-            - If {opponent_player_id} is close to winning, you should block them unless it's a winning move for {ai_player_id}.
-            - Otherwise, you should choose the cell that is the best for {ai_player_id} to win.
-            - If there is only one empty cell, you should choose it immediately. 
-            
-            Your task: - Choose the BEST next move for {ai_player_id}.
-            - Return ONLY the cell index: DO NOT add text, explanation, or code blocks.
-            - Only integer number between 0 and 8!!! 
-            
-            DO NOT add any text, explanation, or code blocks.
-            
-            Current board: {board}
-            
-            """
 
         logger.debug(
             f'Sending prompt to Gemini: Current board: {board}, '
@@ -72,11 +46,40 @@ class AIService:
             logger.error(error_message)
             raise AIServiceError(error_message)
 
+        prompt: str = f"""
+        You are a fast Tic-Tac-Toe engine.
+
+        OUTPUT (CRITICAL):
+        - Respond with EXACTLY ONE digit between 0 and 8.
+        - No text, no explanation, no spaces, no punctuation.
+
+        GAME STATE:
+        - Board (0=empty, 1=X, 2=O): {board}
+        - You are player {ai_player_id}.
+        - Opponent: {opponent_player_id}.
+        - It is your turn.
+        - Winning lines: {WINNING_LINES}
+
+        RULES:
+        1. Choose a legal empty cell (value 0).
+        2. If you can win now, choose that cell.
+        3. Else if opponent can win next turn, block them.
+        4. Else choose the best move for you.
+        5. If only one empty cell remains, choose it.
+
+        RETURN:
+        Only the chosen cell index (0–8). ONE digit. Nothing else.
+        """
+
         try:
-            response: str = self.client.models.generate_content(
+            result = self.client.models.generate_content(
                 model=GEMINI_MODEL,
                 contents=prompt
-            ).text
+            )
+
+            response: str = getattr(result, 'text', '')
+            logger.debug(f'Raw Gemini result: {response!r}')
+
         except APIError as e:
             error_message = 'Failed to get response from AI model due to API error'
             logger.error(error_message, exception=e)
@@ -86,10 +89,11 @@ class AIService:
             logger.error(error_message, exception=e)
             raise AIServiceError(error_message)
 
-       
         ai_cell_index: int = self.validate_response(response, board)
         logger.info(f'AI selected cell index: {ai_cell_index}')
         return ai_cell_index
+
+
 
     def validate_response(self, response: str, board: List[int]) -> int:
         raw_text: str = response.strip()

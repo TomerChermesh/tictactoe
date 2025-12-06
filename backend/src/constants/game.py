@@ -11,3 +11,5 @@ WINNING_LINES: Final[List[List[CellIndex]]] = [
     [0, 4, 8],  # Diagonal TL-BR
     [2, 4, 6],  # Diagonal TR-BL
 ]
+
+BASE_CELLS_PRIORITY: Final[List[CellIndex]] = [4, 0, 2, 6, 8, 1, 3, 5, 7]

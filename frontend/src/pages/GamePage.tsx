@@ -160,18 +160,21 @@ const GamePage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ width: '100%', mt: 4 }}>
+    <Box sx={{ width: '100%', maxWidth: '100%', mt: 4, boxSizing: 'border-box', px: { xs: 1, sm: 0 } }}>
       <Box
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
-          gap: 5,
+          gap: { xs: 2, md: 6 },
           alignItems: 'flex-start',
           justifyContent: 'center',
-          mb: 4
+          mb: 4,
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
         }}
       >
-        <Box sx={{ width: { xs: '100%', md: '28%' }, maxWidth: 260 }}>
+        <Box sx={{ width: { xs: '100%', md: '28%' }, maxWidth: { xs: '100%', md: 260 } }}>
           <PlayerPanel
             player={currentMatchup.player1}
             isActive={!currentGame.isFinished && currentGame.currentTurn === currentMatchup.player1.id}
@@ -181,7 +184,7 @@ const GamePage: React.FC = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: '100%', md: '44%' }, maxWidth: 520 }}>
+        <Box sx={{ width: { xs: '100%', md: '44%' }, maxWidth: { xs: '100%', md: 400 } }}>
           {error && (
               <SnackbarAlert
                 open={true}
@@ -211,7 +214,7 @@ const GamePage: React.FC = () => {
           </Box>
         </Box>
 
-        <Box sx={{ width: { xs: '100%', md: '28%' }, maxWidth: 260 }}>
+        <Box sx={{ width: { xs: '100%', md: '28%' }, maxWidth: { xs: '100%', md: 260 } }}>
           <PlayerPanel
             player={currentMatchup.player2}
             isActive={!currentGame.isFinished && currentGame.currentTurn === currentMatchup.player2.id}

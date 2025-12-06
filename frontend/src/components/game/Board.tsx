@@ -17,14 +17,16 @@ const Board: React.FC<BoardProps> = ({ board, onCellClick, isFinished, winningTr
   }
 
   return (
-    <Card sx={{ borderRadius: 3 }}>
-      <CardContent>
+    <Card sx={{ borderRadius: 3, width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+      <CardContent sx={{ p: { xs: 1, sm: 2 }, boxSizing: 'border-box' }}>
         <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 1,
-            justifyContent: 'center'
+            gap: { xs: 0.5, sm: 1 },
+            justifyContent: 'center',
+            width: '100%',
+            maxWidth: '100%'
           }}
         >
           {board.map((value, index) => (

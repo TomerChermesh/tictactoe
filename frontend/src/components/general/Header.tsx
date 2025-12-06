@@ -1,12 +1,12 @@
 import { Box, Typography, IconButton, Tooltip } from '@mui/material'
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import HomeIcon from '@mui/icons-material/Home'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, type Location, type NavigateFunction } from 'react-router-dom'
 import { useLogoutMutation } from '../../api/authApi'
 
 const Header = () => {
-    const location = useLocation()
-    const navigate = useNavigate()
+    const location: Location = useLocation()
+    const navigate: NavigateFunction = useNavigate()
     const [logout] = useLogoutMutation()
 
     const isLoginPage: boolean = location.pathname === '/login'
@@ -36,7 +36,7 @@ const Header = () => {
                     backgroundColor: 'white',
                     borderRadius: '50%',
                     fontFamily: 'Jumps Winter',
-                    letterSpacing: '0.15em',
+                    letterSpacing: '0.17em',
                     textAlign: 'center',
                     flex: 1,
                     cursor: 'pointer'
