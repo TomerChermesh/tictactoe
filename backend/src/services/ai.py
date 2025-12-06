@@ -5,7 +5,7 @@ from google import genai
 from google.genai.errors import APIError
 
 from src.config import GEMINI_API_KEY
-from src.constants.ai import GEMINI_MODEL, AI_RESPONSE_REGEX
+from src.constants.ai import GEMINI_MODEL, AI_RESPONSE_REGEX, AI_TIMEOUT_SECONDS
 from src.constants.game import WINNING_LINES
 from src.exceptions import AIServiceError
 from src.utils.logger import logger
@@ -22,7 +22,7 @@ class AIService:
             return
 
         try:
-            self.client = genai.Client(api_key=GEMINI_API_KEY)
+            self.client = genai.Client(api_key=GEMINI_API_KEY, http_options=genai.types.HttpOptions(timeout=AI_TIMEOUT_SECONDS))
             self._initialized = True
             logger.info('Gemini Client initialized successfully')
         except Exception as e:
