@@ -12,29 +12,48 @@ const Layout: React.FC<Props> = ({ children }) => {
     <Box
       sx={{
         minHeight: '100vh',
-        width: '100vw',
+        height: '100vh',
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         backgroundImage: 'url("/ttt-bg.png")',
         backgroundRepeat: 'repeat',
         backgroundSize: 'auto',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        overflow: 'hidden',
+        boxSizing: 'border-box'
       }}
     >
-      <Box sx={{ width: '100%', px: 2, pt: 6, pb: 3 }}>
-        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto' }}>
+      <Box sx={{ width: '100%', pt: 6, pb: 3, px: 2, boxSizing: 'border-box', flexShrink: 0 }}>
+        <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 1200 }, mx: 'auto' }}>
           <Header />
         </Box>
       </Box>
 
-      <Box sx={{ flex: 1, display: 'flex', px: 2, pb: 4 }}>
-        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ 
+        flex: 1, 
+        display: 'flex', 
+        pb: 4, 
+        width: '100%', 
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        px: 2,
+        boxSizing: 'border-box'
+      }}>
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: { xs: '100%', sm: 1200 }, 
+          mx: 'auto', 
+          display: 'flex', 
+          justifyContent: 'center',
+          boxSizing: 'border-box'
+        }}>
           {children}
         </Box>
       </Box>
 
-      <Box sx={{ width: '100%', px: 2, pb: 2 }}>
-        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto' }}>
+      <Box sx={{ width: '100%', pb: 2, px: 2, boxSizing: 'border-box', flexShrink: 0 }}>
+        <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 1200 }, mx: 'auto' }}>
           <Footer />
         </Box>
       </Box>

@@ -12,31 +12,12 @@ const StartPlayerSelector: React.FC<Props> = ({ value, onChange }) => {
 
   return (
     <Box>
-      <Typography variant='body2' sx={{ mb: 1, fontWeight: 500 }}>
-        Who starts?
-      </Typography>
+      <Typography variant='body1' sx={{ my: 1, textAlign: 'center' }}>Who starts?</Typography>
 
       <Stack direction='row' spacing={1.5} justifyContent='center'>
-        <Button
-          variant={isSelected(1) ? 'contained' : 'outlined'}
-          onClick={() => onChange(1)}
-        >
-          X
-        </Button>
-
-        <Button
-          variant={isSelected(0) ? 'contained' : 'outlined'}
-          onClick={() => onChange(0)}
-        >
-          🎲
-        </Button>
-
-        <Button
-          variant={isSelected(2) ? 'contained' : 'outlined'}
-          onClick={() => onChange(2)}
-        >
-          O
-        </Button>
+        <Button variant={isSelected(1) ? 'contained' : 'outlined'} onClick={() => onChange(1)} sx={{ fontSize: '1.5rem' }}>X</Button>
+        <Button variant={isSelected(0) ? 'contained' : 'outlined'} onClick={() => onChange(0)} sx={{ fontSize: '1.5rem' }}>🎲</Button>
+        <Button variant={isSelected(2) ? 'contained' : 'outlined'} onClick={() => onChange(2)} sx={{ fontSize: '1.5rem' }}>O</Button> 
       </Stack>
     </Box>
   )

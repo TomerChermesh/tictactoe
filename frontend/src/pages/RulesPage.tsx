@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Typography, Stack, Divider } from '@mui/materia
 
 const RulesPage: React.FC = () => {
   return (
-    <Box sx={{ width: '100%', maxWidth: 800 }}>
+    <Box sx={{ width: '100%', maxWidth: { xs: '100%', sm: 600, md: 800 }, boxSizing: 'border-box', px: { xs: 1, sm: 0 } }}>
       <Typography variant='h4' align='center' sx={{ mb: 2, color: 'black' }}>
         Rules
       </Typography>
