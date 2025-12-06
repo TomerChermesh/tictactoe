@@ -77,7 +77,7 @@ class AIService:
                 contents=prompt
             )
 
-            response: str = getattr(result, 'text', '') or ''
+            response: str = getattr(result, 'text', '')
             logger.debug(f'Raw Gemini result: {response!r}')
 
         except APIError as e:
