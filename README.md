@@ -194,9 +194,11 @@ The frontend receives the updated `Game` and `Matchup` and updates Redux accordi
 
 Unexpected AI responses are handled defensively in `AIService`:
 
+- Timeout Exceeded (Configurable timeout - currently 12 seconds)
 - Empty response
 - Bad Response
 - Out‑of‑range index
 - Index points to a non‑empty cell
 
-In any of those cases, the `GameService` is responsible to return a random empty cell.
+In any of those cases, the system automatically falls back to a deterministic local move-selection algorithm to ensure uninterrupted gameplay.
+
