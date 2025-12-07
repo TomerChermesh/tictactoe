@@ -97,7 +97,6 @@ class AIService:
 
     def validate_response(self, response: str, board: List[int]) -> int:
         raw_text: str = response.strip()
-        logger.debug(f'Response from Gemini: {raw_text}')
 
         if not raw_text:
             error_message = 'AI returned an empty response'
